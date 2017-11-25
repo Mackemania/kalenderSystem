@@ -22,7 +22,7 @@ public class kalenderSystem_window extends JFrame {
 	public kalenderSystem_window() {
 		super("Kalender");
 		super.setDefaultCloseOperation(EXIT_ON_CLOSE);
-		super.setLocation(-1800, 100);
+		super.setLocation(100, 100);
 		super.setSize(1200, 675);
 		super.setLayout(new BorderLayout());
 		
