@@ -5,13 +5,18 @@ import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.io.InputStream;
+import java.net.URL;
+import java.net.URLConnection;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
-import sun.net.www.http.HttpClient;
+import org.json.JSONObject;
+
+import jdk.nashorn.internal.parser.JSONParser;
 
 public class kalenderSystem_window extends JFrame {
 	
@@ -71,6 +76,13 @@ public class kalenderSystem_window extends JFrame {
 		
 		boolean run = true;
 		
+		String[] temps = {"SQL"};
+		String SQL = "SELECT * FROM col";
+		Object[] objs = {SQL};
+		
+		
+		getDataFromServer("kalenderSystem_getData.php", temps, objs);
+		
 		while(run) {
 			super.repaint();
 			
@@ -80,17 +92,64 @@ public class kalenderSystem_window extends JFrame {
 		
 	}
 	
-	public String getDataFromServer(String path) {
+	public String getDataFromServer(String path, String[] varNames, Object[] params) {
 		
-		String url = "http://localhost:0080/"+path;
-		String charset = "UTF-8";
+		String str_url = "http://localhost:0080/kalenderSystem_server/"+path;
+		String query = "?";
+		
+		for(int i = 0; i<varNames.length; i++) {
+			
+			if(i==0) {
+				
+				query = query+varNames[i]+"="+params[i];
+			
+			} else {
+				
+				query = query+"&"+varNames[i]+"="+params[i];
+			}
+			
+		}
+		
+		//System.out.println(query);
+		
+		str_url = str_url+query;
+		str_url = str_url.replace(" ", "%20");
 		
 		try {
+			
+			System.out.println(str_url);
+			URL url = new URL(str_url);
+			URLConnection conn = url.openConnection();
+			InputStream is = conn.getInputStream();
+			
+			String retval = "";
+			
+			while(is.available()>0) {
+			
+				retval = retval+(char)is.read();
+			
+			}
+			
+			System.out.println(retval);
+			JSONObject jsons = new JSONObject(retval);
+			Object[][] matrix = new Object[0][0];
+			
+			for(int i = 0; !jsons.isNull(""+i); i++) {
+				for(int j = 0; !jsons.isNull(""+(j+1)); j++) { 
+					
+					System.out.println(i+" "+j);
+					System.out.println(((JSONObject)jsons.get(""+i)).get(""+j));
+				
+				}
+			}
+			
+			
+			
 			
 			
 		} catch (Exception e) {
 			
-			System.out.println(e);
+			e.printStackTrace();
 		}
 		
 		
