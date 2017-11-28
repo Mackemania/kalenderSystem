@@ -78,14 +78,14 @@ public class kalenderSystem_window extends JFrame {
 		boolean run = true;
 		
 		
-		String SQL = "SELECT * FROM col where en=?";
-		String types = "s";
-		Object[] params = {"ett"};
+		String SQL = "INSERT INTO users(username, password, email, firstName, lastName) VALUES(?, ?, ?, ?, ?)";
+		String types = "sssss";
+		Object[] params = {"Mackemania", "Admin", "admin@cal.se", "Test", "Test"};
 		
-		Object[][] matrix = getDataFromServer("kalenderSystem_getData.php", SQL, types, params);
+		//sendDataToServer("kalenderSystem_sendData.php", SQL, types, params);
+		//Object[][] matrix = getDataFromServer("kalenderSystem_getData.php", SQL, types, params);
+		//System.out.println(matrix[0][1]);
 		
-		
-		System.out.println(matrix[0][1]);
 		/*while(run) {
 			
 			super.repaint();
@@ -93,6 +93,59 @@ public class kalenderSystem_window extends JFrame {
 		}*/
 		
 		
+	}
+	
+	public void sendDataToServer(String path, String SQL, String types, Object[] params) {
+		String str_url = "http://localhost:0080/kalenderSystem_server/"+path;
+		String query = "?";
+		
+		if(types.equals("")) {
+			
+			query = query+"SQL="+SQL;
+			
+		} else {
+			
+			JSONArray sendParams = new JSONArray(params);
+			//System.out.println(sendParams.toString());
+			
+			String[] index = new String[params.length];
+			
+			for(int i = 0; i<index.length; i++) {
+				
+				index[i] = ""+i;
+				//System.out.println(index[i]);
+			}
+			JSONArray JSONIndex = new JSONArray(index);
+			//System.out.println(JSONIndex.toString());
+			String values = sendParams.toJSONObject(JSONIndex).toString();
+			query = query+"SQL="+SQL+"&types="+types+"&values="+values;
+		}
+		
+		
+		str_url = str_url+query;
+		str_url = str_url.replace(" ", "%20");
+		
+		try {
+			
+			System.out.println(str_url);
+			URL url = new URL(str_url);
+			URLConnection conn = url.openConnection();
+			InputStream is = conn.getInputStream();
+			
+			String retval = "";
+			
+			while(is.available()>0) {
+				
+				retval = retval+(char)is.read();
+			
+			}
+			
+			System.out.println(retval);
+		
+		} catch (Exception e) {
+			
+			e.printStackTrace();
+		}
 	}
 	
 	public Object[][] getDataFromServer(String path, String SQL, String types, Object[] params) {
