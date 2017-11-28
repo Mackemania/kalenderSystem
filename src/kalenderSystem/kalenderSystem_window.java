@@ -95,16 +95,28 @@ public class kalenderSystem_window extends JFrame {
 		
 	}
 	
+	/* Används för att skicka data till filen 'path' på localhost.
+	 * 
+	 * Inputs:
+	 * 		-String path, filnamet på den fil man vill komma åt från servern
+	 * 		-String SQL, SQL-uttrycket som man vill exekvera
+	 * 		-String types, En textsträng där typerna av påföljande variabler är där s = string, i = int, d = double och b = blob
+	 */
 	public void sendDataToServer(String path, String SQL, String types, Object[] params) {
+		
+		//Skapar en url som leder till valfri fil på localhost
 		String str_url = "http://localhost:0080/kalenderSystem_server/"+path;
 		String query = "?";
 		
-		if(types.equals("")) {
+		//Skapar en fråga som servern kommer ta emot.
+		if(types.equals("¤")) {
 			
-			query = query+"SQL="+SQL;
+			query = query+"SQL="+SQL+"&types="+types;
 			
 		} else {
 			
+
+			//Formaterar om frågan till ett JSON object
 			JSONArray sendParams = new JSONArray(params);
 			//System.out.println(sendParams.toString());
 			
@@ -127,6 +139,7 @@ public class kalenderSystem_window extends JFrame {
 		
 		try {
 			
+			//Connectar till url:en
 			System.out.println(str_url);
 			URL url = new URL(str_url);
 			URLConnection conn = url.openConnection();
@@ -134,6 +147,7 @@ public class kalenderSystem_window extends JFrame {
 			
 			String retval = "";
 			
+			//Hämtar allt som står på "webbsidan"
 			while(is.available()>0) {
 				
 				retval = retval+(char)is.read();
@@ -148,17 +162,31 @@ public class kalenderSystem_window extends JFrame {
 		}
 	}
 	
+	
+	/* Används för att skicka data till filen 'path' på localhost.
+	 * 
+	 * Inputs:
+	 * 		-String path, filnamet på den fil man vill komma åt från servern
+	 * 		-String SQL, SQL-uttrycket som man vill exekvera
+	 * 		-String types, En textsträng där typerna av påföljande variabler är där s = string, i = int, d = double och b = blob
+	 * 		
+	 * Outputs:
+	 * 		-Object[][] matrix som innehåller all den data man får från SQL frågan.
+	 */
 	public Object[][] getDataFromServer(String path, String SQL, String types, Object[] params) {
 		
+		//Skapar en url som leder till valfri fil på localhost
 		String str_url = "http://localhost:0080/kalenderSystem_server/"+path;
 		String query = "?";
 		
-		if(types.equals("")) {
+		//Skapar en fråga som servern kommer ta emot.
+		if(types.equals("¤")) {
 			
-			query = query+"SQL="+SQL;
+			query = query+"SQL="+SQL+"&types="+types;
 			
 		} else {
 			
+			//Formaterar om frågan till ett JSON object
 			JSONArray sendParams = new JSONArray(params);
 			//System.out.println(sendParams.toString());
 			
@@ -180,7 +208,7 @@ public class kalenderSystem_window extends JFrame {
 		str_url = str_url.replace(" ", "%20");
 		
 		try {
-			
+			//Connectar till servern
 			System.out.println(str_url);
 			URL url = new URL(str_url);
 			URLConnection conn = url.openConnection();
@@ -188,6 +216,7 @@ public class kalenderSystem_window extends JFrame {
 			
 			String retval = "";
 			
+			//hämntar allt som står på "webbsidan"
 			while(is.available()>0) {
 				
 				retval = retval+(char)is.read();
@@ -198,6 +227,7 @@ public class kalenderSystem_window extends JFrame {
 			JSONObject jsons = new JSONObject(retval);
 			//System.out.println(jsons.toString());
 			
+			//Gör om JSONObjektet till en Object-matris
 			int iMax = 0;
 			int jMax = 0;
 			//System.out.println(jsons.get("0"));
@@ -232,6 +262,8 @@ public class kalenderSystem_window extends JFrame {
 				}
 			}
 			//System.out.println(matrix[0][0]);
+			
+			
 			return matrix;
 			
 		} catch (Exception e) {
