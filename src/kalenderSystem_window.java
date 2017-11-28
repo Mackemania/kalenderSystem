@@ -98,6 +98,11 @@ public class kalenderSystem_window extends JFrame {
 		
 	}
 	
+	public void kalenderSystem_logInUser() {
+		
+		
+	}
+	
 	/* Används för att skicka data till filen 'path' på localhost.
 	 * 
 	 * Inputs:
