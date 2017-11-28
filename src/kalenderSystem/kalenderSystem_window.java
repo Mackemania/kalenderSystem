@@ -14,6 +14,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import jdk.nashorn.internal.parser.JSONParser;
@@ -76,41 +77,51 @@ public class kalenderSystem_window extends JFrame {
 		
 		boolean run = true;
 		
-		String[] temps = {"SQL"};
-		String SQL = "SELECT * FROM col";
-		Object[] objs = {SQL};
+		
+		String SQL = "SELECT * FROM col where en=?";
+		String types = "s";
+		Object[] params = {"ett"};
+		
+		Object[][] matrix = getDataFromServer("kalenderSystem_getData.php", SQL, types, params);
 		
 		
-		getDataFromServer("kalenderSystem_getData.php", temps, objs);
-		
-		while(run) {
+		System.out.println(matrix[0][1]);
+		/*while(run) {
+			
 			super.repaint();
 			
-			
-		}
+		}*/
 		
 		
 	}
 	
-	public String getDataFromServer(String path, String[] varNames, Object[] params) {
+	public Object[][] getDataFromServer(String path, String SQL, String types, Object[] params) {
 		
 		String str_url = "http://localhost:0080/kalenderSystem_server/"+path;
 		String query = "?";
 		
-		for(int i = 0; i<varNames.length; i++) {
+		if(types.equals("")) {
 			
-			if(i==0) {
-				
-				query = query+varNames[i]+"="+params[i];
+			query = query+"SQL="+SQL;
 			
-			} else {
+		} else {
+			
+			JSONArray sendParams = new JSONArray(params);
+			//System.out.println(sendParams.toString());
+			
+			String[] index = new String[params.length];
+			
+			for(int i = 0; i<index.length; i++) {
 				
-				query = query+"&"+varNames[i]+"="+params[i];
+				index[i] = ""+i;
+				//System.out.println(index[i]);
 			}
-			
+			JSONArray JSONIndex = new JSONArray(index);
+			//System.out.println(JSONIndex.toString());
+			String values = sendParams.toJSONObject(JSONIndex).toString();
+			query = query+"SQL="+SQL+"&types="+types+"&values="+values;
 		}
 		
-		//System.out.println(query);
 		
 		str_url = str_url+query;
 		str_url = str_url.replace(" ", "%20");
@@ -125,27 +136,50 @@ public class kalenderSystem_window extends JFrame {
 			String retval = "";
 			
 			while(is.available()>0) {
-			
+				
 				retval = retval+(char)is.read();
 			
 			}
 			
 			System.out.println(retval);
 			JSONObject jsons = new JSONObject(retval);
-			Object[][] matrix = new Object[0][0];
+			//System.out.println(jsons.toString());
 			
+			int iMax = 0;
+			int jMax = 0;
+			//System.out.println(jsons.get("0"));
 			for(int i = 0; !jsons.isNull(""+i); i++) {
-				for(int j = 0; !jsons.isNull(""+(j+1)); j++) { 
+				for(int j = 0; !((JSONObject)jsons.get(""+i)).isNull(""+j); j++) { 
 					
-					System.out.println(i+" "+j);
-					System.out.println(((JSONObject)jsons.get(""+i)).get(""+j));
-				
+					
+					//System.out.println(i+" "+j);
+					if(iMax<i) {
+						
+						iMax = i;
+						
+					}
+					
+					if(jMax<j) {
+						
+						jMax = j;
+						
+					}
 				}
 			}
 			
-			
-			
-			
+			iMax++;
+			jMax++;
+			Object[][] matrix = new Object[iMax][jMax];
+			//System.out.println(iMax);
+			//System.out.println(jMax);
+			for(int i = 0; i<matrix.length; i++) {
+				for(int j = 0; j<matrix[i].length; j++) { 
+					
+					matrix[i][j] = ((JSONObject)jsons.get(""+i)).get(""+j);
+				}
+			}
+			//System.out.println(matrix[0][0]);
+			return matrix;
 			
 		} catch (Exception e) {
 			
@@ -153,6 +187,6 @@ public class kalenderSystem_window extends JFrame {
 		}
 		
 		
-		return "";
+		return null;
 	}
 }
