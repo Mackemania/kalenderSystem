@@ -77,10 +77,7 @@ public class kalenderSystem_window extends JFrame {
 		
 		boolean run = true;
 		
-		
-		String SQL = "INSERT INTO users(username, password, email, firstName, lastName) VALUES(?, ?, ?, ?, ?)";
-		String types = "sssss";
-		Object[] params = {"Mackemania", "Admin", "admin@cal.se", "Test", "Test"};
+		kalenderSystem_registerUser("Mackemania", "Admin", "admin@cal.se", "Test", "Test");
 		
 		//sendDataToServer("kalenderSystem_sendData.php", SQL, types, params);
 		//Object[][] matrix = getDataFromServer("kalenderSystem_getData.php", SQL, types, params);
@@ -95,6 +92,16 @@ public class kalenderSystem_window extends JFrame {
 		
 	}
 	
+	public void kalenderSystem_registerUser(String username, String password, String email, String firstName, String lastName) {
+		
+		String SQL = "INSERT INTO users(username, password, email, firstName, lastName) VALUES(?, ?, ?, ?, ?)";
+		String types = "sssss";
+		Object[] params = {username, password, email, firstName, lastName};
+		kalenderSystem_sendDataToServer("kalenderSystem_sendData.php", SQL, types, params);
+		
+		
+	}
+	
 	/* Används för att skicka data till filen 'path' på localhost.
 	 * 
 	 * Inputs:
@@ -102,7 +109,7 @@ public class kalenderSystem_window extends JFrame {
 	 * 		-String SQL, SQL-uttrycket som man vill exekvera
 	 * 		-String types, En textsträng där typerna av påföljande variabler är där s = string, i = int, d = double och b = blob
 	 */
-	public void sendDataToServer(String path, String SQL, String types, Object[] params) {
+	public void kalenderSystem_sendDataToServer(String path, String SQL, String types, Object[] params) {
 		
 		//Skapar en url som leder till valfri fil på localhost
 		String str_url = "http://localhost:0080/kalenderSystem_server/"+path;
@@ -173,7 +180,7 @@ public class kalenderSystem_window extends JFrame {
 	 * Outputs:
 	 * 		-Object[][] matrix som innehåller all den data man får från SQL frågan.
 	 */
-	public Object[][] getDataFromServer(String path, String SQL, String types, Object[] params) {
+	public Object[][] kalenderSystem_getDataFromServer(String path, String SQL, String types, Object[] params) {
 		
 		//Skapar en url som leder till valfri fil på localhost
 		String str_url = "http://localhost:0080/kalenderSystem_server/"+path;
