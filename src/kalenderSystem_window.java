@@ -1,5 +1,3 @@
-package kalenderSystem;
-
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
@@ -16,8 +14,6 @@ import javax.swing.JScrollPane;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
-
-import jdk.nashorn.internal.parser.JSONParser;
 
 public class kalenderSystem_window extends JFrame {
 	
