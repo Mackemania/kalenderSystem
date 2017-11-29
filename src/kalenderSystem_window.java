@@ -75,9 +75,6 @@ public class kalenderSystem_window extends JFrame {
 		
 		kalenderSystem_registerUser("Mackemania", "Admin", "admin@cal.se", "Test", "Test");
 		
-		//sendDataToServer("kalenderSystem_sendData.php", SQL, types, params);
-		//Object[][] matrix = getDataFromServer("kalenderSystem_getData.php", SQL, types, params);
-		//System.out.println(matrix[0][1]);
 		
 		/*while(run) {
 			
@@ -86,6 +83,13 @@ public class kalenderSystem_window extends JFrame {
 		}*/
 		
 		
+	}
+	
+	public String kalenderSystem_login(String username, String password) {
+		
+		
+		
+		return null;
 	}
 	
 	public void kalenderSystem_registerUser(String username, String password, String email, String firstName, String lastName) {
