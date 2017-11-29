@@ -7,8 +7,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
-import java.net.URLEncoder;
-import java.nio.charset.Charset;
+import java.util.Date;
+import java.util.Vector;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -25,13 +25,27 @@ public class kalenderSystem_window extends JFrame {
 	private int y = 0;
 	private String hashkey = "";
 	private int userID = -1;
+	Thread thread;
 	
 	public kalenderSystem_window() {
 		super("Kalender");
 		super.setDefaultCloseOperation(EXIT_ON_CLOSE);
 		super.setLocation(100, 100);
-		super.setSize(1200, 675);
+		super.setPreferredSize(new Dimension(1200, 675));
 		super.setLayout(new BorderLayout());
+		
+		/*
+		try {
+		
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+		
+		} catch (Exception e) {
+		
+			e.printStackTrace();
+		
+		}
+		*/
+		
 		
 		c.fill = GridBagConstraints.BOTH;
 		c.weightx = 0;
@@ -74,23 +88,71 @@ public class kalenderSystem_window extends JFrame {
 		mainMenuPanel.setBorder(null);
 		super.add(mainMenuPanel, BorderLayout.WEST);
 		
+		pack();
 		//super.setVisible(true);
 		
 		boolean run = true;
 		
-		//kalenderSystem_registerUser("Mackemania", "Admin", "admin@cal.se", "Test", "Test");
-		
+		//System.out.println(kalenderSystem_register("Tobben", "Admin", "admisnn@cals.se", "Test", "Test"));
 		kalenderSystem_login("Mackemania", "Admin");
-		/*while(run) {
+		kalenderSystem_addActivity(1, "", null, null);
+		
+		/*thread = new Thread();
+		while(run) {
 			
-			super.repaint();
+			repaint();
 			
+			try {
+				
+				Thread.sleep(10);
+			
+			} catch (InterruptedException e) {
+				
+				e.printStackTrace();
+				
+			}
 		}*/
 		
 		
 	}
 	
-	public String kalenderSystem_login(String username, String password) {
+	public boolean kalenderSystem_addActivity(int calendarID, String name, Date startTime, Date endTime) {
+		
+		String SQL = "SELECT eventID FROM acceptedevents WHERE userID=?";
+		String types = "i";
+		Object[] params = {userID};
+		
+		Object[][] matrix = kalenderSystem_getData("kalenderSystem_getData.php", SQL, types, params);
+		
+		Vector<Integer> eventIDs = new Vector<Integer>();
+		
+		for(int i= 0; i<matrix.length; i++) {
+			
+			eventIDs.add((int)matrix[i][0]);
+			
+		}
+		
+		SQL = "SELECT eventID FROM events WHERE creatorID=?";
+		types = "i";
+		params[0] = userID;
+		matrix = kalenderSystem_getData("kalenderSystem_getData.php", SQL, types, params);
+		
+		for(int i= 0; i<matrix.length; i++) {
+			
+			eventIDs.add((int)matrix[i][0]);
+			
+		}
+		
+		
+		for(int i = 0; i<eventIDs.size(); i++) {
+			
+			System.out.println(eventIDs.get(i));
+		}
+		
+		return false;
+	}
+	
+	public boolean kalenderSystem_login(String username, String password) {
 		
 		String str_url = "http://localhost:0080/kalenderSystem_server/login.php";
 		String query = "?username="+username+"&password="+password;
@@ -111,37 +173,92 @@ public class kalenderSystem_window extends JFrame {
 				retval = retval+(char)is.read();
 			
 			}
+			is.close();
 			
 			//System.out.println(retval);
 			JSONObject json = new JSONObject(retval);
 			userID = json.getInt("0");
 			hashkey = json.getString("1");
 			
-			System.out.println(hashkey);
+			//System.out.println(hashkey);
 			
 			String SQL = "SELECT hashID FROM hash WHERE hash = ? AND userID = ?";
 			String types = "si";
 			Object[] params = {hashkey, userID};
 			
-			Object[][] matrix = kalenderSystem_getDataFromServer("kalenderSystem_getData.php", SQL, types, params);
+			Object[][] matrix = kalenderSystem_getData("kalenderSystem_getData.php", SQL, types, params);
+			
+			if((int) matrix[0][0] == 0) {
+				
+				userID = -1;
+				hashkey = "";
+				
+				return false;
+				
+			} else {
+				
+				return true;
+			}
 		
 		} catch (IOException e) {
 			
 			e.printStackTrace();
 		}
 		
-		return null;
+		return false;
 	}
 	
-	public void kalenderSystem_registerUser(String username, String password, String email, String firstName, String lastName) {
+	
+	public boolean kalenderSystem_register(String username, String password, String email, String firstName, String lastName) {
 		
 		String SQL = "INSERT INTO users(username, password, email, firstName, lastName) VALUES(?, ?, ?, ?, ?)";
 		String types = "sssss";
 		Object[] params = {username, password, email, firstName, lastName};
-		kalenderSystem_sendDataToServer("kalenderSystem_sendData.php", SQL, types, params);
+		kalenderSystem_sendData("kalenderSystem_register.php", SQL, types, params);
 		
+		String str_url = "http://localhost:0080/kalenderSystem_server/kalenderSystem_register.php";
+		String query = "?username="+username+"&password="+password+"&email="+email+"&firstName="+firstName+"&lastName="+lastName;
 		
+		str_url = str_url+query;
+		
+		try {
+			
+			//System.out.println(str_url);
+			URL url = new URL(str_url);
+			URLConnection conn = url.openConnection();
+			InputStream is = conn.getInputStream();
+			
+			String retval = "";
+			
+			//Hämtar allt som står på "webbsidan"
+			while(is.available()>0) {
+				
+				retval = retval+(char)is.read();
+			
+			}
+			is.close();
+			
+			//System.out.println(retval);
+			
+			if(retval.equals("1")) {
+				
+				return true;
+			
+			} else {
+				
+				return false;
+			
+			}
+			
+		
+		} catch (Exception e) {
+			
+			e.printStackTrace();
+		
+		}
+		return false;
 	}
+	
 	
 	/* Används för att skicka data till filen 'path' på localhost.
 	 * 
@@ -150,7 +267,7 @@ public class kalenderSystem_window extends JFrame {
 	 * 		-String SQL, SQL-uttrycket som man vill exekvera
 	 * 		-String types, En textsträng där typerna av påföljande variabler är där s = string, i = int, d = double och b = blob
 	 */
-	public void kalenderSystem_sendDataToServer(String path, String SQL, String types, Object[] params) {
+	public boolean kalenderSystem_sendData(String path, String SQL, String types, Object[] params) {
 		
 		//Skapar en url som leder till valfri fil på localhost
 		String str_url = "http://localhost:0080/kalenderSystem_server/"+path;
@@ -188,7 +305,7 @@ public class kalenderSystem_window extends JFrame {
 		try {
 			
 			//Connectar till url:en
-			System.out.println(str_url);
+			//System.out.println(str_url);
 			URL url = new URL(str_url);
 			URLConnection conn = url.openConnection();
 			InputStream is = conn.getInputStream();
@@ -201,14 +318,27 @@ public class kalenderSystem_window extends JFrame {
 				retval = retval+(char)is.read();
 			
 			}
+			is.close();
 			
-			System.out.println(retval);
+			if(retval.equals("1")) {
+				
+				return true;
+			
+			} else {
+				
+				return false;
+			
+			}
+			//System.out.println(retval);
 		
 		} catch (Exception e) {
 			
 			e.printStackTrace();
 		}
+		
+		return false;
 	}
+	
 	
 	
 	/* Används för att skicka data till filen 'path' på localhost.
@@ -221,7 +351,7 @@ public class kalenderSystem_window extends JFrame {
 	 * Outputs:
 	 * 		-Object[][] matrix som innehåller all den data man får från SQL frågan.
 	 */
-	public Object[][] kalenderSystem_getDataFromServer(String path, String SQL, String types, Object[] params) {
+	public Object[][] kalenderSystem_getData(String path, String SQL, String types, Object[] params) {
 		
 		//Skapar en url som leder till valfri fil på localhost
 		String str_url = "http://localhost:0080/kalenderSystem_server/"+path;
@@ -257,7 +387,7 @@ public class kalenderSystem_window extends JFrame {
 		
 		try {
 			//Connectar till servern
-			System.out.println(str_url);
+			//System.out.println(str_url);
 			URL url = new URL(str_url);
 			URLConnection conn = url.openConnection();
 			InputStream is = conn.getInputStream();
@@ -270,8 +400,10 @@ public class kalenderSystem_window extends JFrame {
 				retval = retval+(char)is.read();
 			
 			}
+			is.close();
 			
-			System.out.println(retval);
+			
+			//System.out.println(retval);
 			JSONObject jsons = new JSONObject(retval);
 			//System.out.println(jsons.toString());
 			
@@ -307,12 +439,24 @@ public class kalenderSystem_window extends JFrame {
 				for(int j = 0; j<matrix[i].length; j++) { 
 					
 					matrix[i][j] = ((JSONObject)jsons.get(""+i)).get(""+j);
+					
 				}
 			}
 			//System.out.println(matrix[0][0]);
 			
-			
+			if(matrix.length == 1) {
+				
+				if(matrix[0].length == 1) {
+					
+					if(matrix[0][0].equals("null")) {
+						
+						matrix = new Object[0][0];
+						
+					}
+				}
+			}
 			return matrix;
+		
 			
 		} catch (Exception e) {
 			
