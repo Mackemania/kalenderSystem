@@ -3,9 +3,12 @@ import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
+import java.net.URLEncoder;
+import java.nio.charset.Charset;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -20,6 +23,8 @@ public class kalenderSystem_window extends JFrame {
 	GridBagConstraints c = new GridBagConstraints();
 	private int x = 0;
 	private int y = 0;
+	private String hashkey = "";
+	private int userID = -1;
 	
 	public kalenderSystem_window() {
 		super("Kalender");
@@ -69,13 +74,13 @@ public class kalenderSystem_window extends JFrame {
 		mainMenuPanel.setBorder(null);
 		super.add(mainMenuPanel, BorderLayout.WEST);
 		
-		super.setVisible(true);
+		//super.setVisible(true);
 		
 		boolean run = true;
 		
-		kalenderSystem_registerUser("Mackemania", "Admin", "admin@cal.se", "Test", "Test");
+		//kalenderSystem_registerUser("Mackemania", "Admin", "admin@cal.se", "Test", "Test");
 		
-		
+		kalenderSystem_login("Mackemania", "Admin");
 		/*while(run) {
 			
 			super.repaint();
@@ -87,7 +92,43 @@ public class kalenderSystem_window extends JFrame {
 	
 	public String kalenderSystem_login(String username, String password) {
 		
+		String str_url = "http://localhost:0080/kalenderSystem_server/login.php";
+		String query = "?username="+username+"&password="+password;
 		
+		str_url = str_url+query;
+		
+		
+		try {
+			URL url = new URL(str_url);
+			URLConnection conn = url.openConnection();
+			InputStream is = conn.getInputStream();
+			
+			String retval = "";
+			
+			//Hämtar allt som står på "webbsidan"
+			while(is.available()>0) {
+				
+				retval = retval+(char)is.read();
+			
+			}
+			
+			//System.out.println(retval);
+			JSONObject json = new JSONObject(retval);
+			userID = json.getInt("0");
+			hashkey = json.getString("1");
+			
+			System.out.println(hashkey);
+			
+			String SQL = "SELECT hashID FROM hash WHERE hash = ? AND userID = ?";
+			String types = "si";
+			Object[] params = {hashkey, userID};
+			
+			Object[][] matrix = kalenderSystem_getDataFromServer("kalenderSystem_getData.php", SQL, types, params);
+		
+		} catch (IOException e) {
+			
+			e.printStackTrace();
+		}
 		
 		return null;
 	}
@@ -98,11 +139,6 @@ public class kalenderSystem_window extends JFrame {
 		String types = "sssss";
 		Object[] params = {username, password, email, firstName, lastName};
 		kalenderSystem_sendDataToServer("kalenderSystem_sendData.php", SQL, types, params);
-		
-		
-	}
-	
-	public void kalenderSystem_logInUser() {
 		
 		
 	}
@@ -145,7 +181,7 @@ public class kalenderSystem_window extends JFrame {
 			query = query+"SQL="+SQL+"&types="+types+"&values="+values;
 		}
 		
-		
+		query = query+"&userID="+userID+"&hashkey="+hashkey;
 		str_url = str_url+query;
 		str_url = str_url.replace(" ", "%20");
 		
@@ -215,7 +251,7 @@ public class kalenderSystem_window extends JFrame {
 			query = query+"SQL="+SQL+"&types="+types+"&values="+values;
 		}
 		
-		
+		query = query+"&userID="+userID+"&hashkey="+hashkey;
 		str_url = str_url+query;
 		str_url = str_url.replace(" ", "%20");
 		
