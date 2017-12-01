@@ -8,6 +8,7 @@ import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -102,7 +103,18 @@ public class kalenderSystem_window extends JFrame {
 		
 		//System.out.println(kalenderSystem_register("Tobben", "Admin", "admisnn@cals.se", "Test", "Test"));
 		kalenderSystem_login("Mackemania", "Admin");
-		kalenderSystem_addActivity(1, "", null, null);
+		
+		try {
+			Date start = df.parse("2018-06-04 07:50:00");
+			Date end = df.parse("2018-06-04 08:45:00");
+			kalenderSystem_addActivity(1, "", start, end);
+		
+		} catch (Exception e) {
+		
+			e.printStackTrace();
+		
+		}
+		
 		
 		/*thread = new Thread();
 		while(run) {
@@ -125,53 +137,7 @@ public class kalenderSystem_window extends JFrame {
 	
 	public Object[][] kalenderSystem_getActivities() {
 
-		String SQL = "SELECT eventID FROM acceptedevents WHERE userID=?";
-		String types = "i";
-		Object[] params = {userID};
-		
-		Object[][] matrix = kalenderSystem_getData("kalenderSystem_getData.php", SQL, types, params);
-		
-		Vector<Integer> eventIDs = new Vector<Integer>();
-		
-		for(int i= 0; i<matrix.length; i++) {
-			
-			eventIDs.add((int)matrix[i][0]);
-			
-		}
-		
-		SQL = "SELECT eventID FROM events WHERE creatorID=?";
-		types = "i";
-		params[0] = userID;
-		matrix = kalenderSystem_getData("kalenderSystem_getData.php", SQL, types, params);
-		
-		for(int i= 0; i<matrix.length; i++) {
-			
-			eventIDs.add((int)matrix[i][0]);
-			
-		}
-		
-		
-		matrix = new Object[eventIDs.size()][];
-		for(int i = 0; i<eventIDs.size(); i++) {
-			
-			int eventID = eventIDs.get(i);
-			
-			SQL = "SELECT name, startTime, endTime, creatorID FROM events WHERE eventID=?";
-			types = "i";
-			params[0] = eventID;
-			Object[][]temp = kalenderSystem_getData("kalenderSystem_getData.php", SQL, types, params);
-			matrix[i] = temp[0];
-			
-		}
-		
-		
-		
-		return null;
-		
-	}
-	
-	public boolean kalenderSystem_addActivity(int calendarID, String name, Date startTime, Date endTime) {
-		
+
 		String SQL = "SELECT eventID FROM acceptedevents WHERE userID=?";
 		String types = "i";
 		Object[] params = {userID};
@@ -247,11 +213,127 @@ public class kalenderSystem_window extends JFrame {
 			
 			Object[][]temp = kalenderSystem_getData("kalenderSystem_getData.php", SQL, types, params);
 			matrix[i] = temp[0];
-			System.out.println(matrix[i][0]);
+			
 		}
 		
+		return matrix;
 		
+	}
+	
+	public boolean kalenderSystem_addActivity(int calendarID, String eventName, Date startTime, Date endTime) {
 		
+		if(startTime.compareTo(endTime)<0) {
+		
+			String SQL = "SELECT eventID FROM acceptedevents WHERE userID=?";
+			String types = "i";
+			Object[] params = {userID};
+			
+			Object[][] matrix = kalenderSystem_getData("kalenderSystem_getData.php", SQL, types, params);
+			
+			Vector<Integer> eventIDs = new Vector<Integer>();
+			
+			for(int i= 0; i<matrix.length; i++) {
+				
+				eventIDs.add((int)matrix[i][0]);
+				
+			}
+			
+			SQL = "SELECT eventID FROM events WHERE creatorID=?";
+			types = "i";
+			params[0] = userID;
+			matrix = kalenderSystem_getData("kalenderSystem_getData.php", SQL, types, params);
+			
+			for(int i= 0; i<matrix.length; i++) {
+				
+				eventIDs.add((int)matrix[i][0]);
+				
+			}
+			
+			
+			matrix = new Object[eventIDs.size()][];
+			
+			
+			/*
+			 * Today ska ändras till startTime
+			 * 
+			 */
+			
+			//System.out.println(str_date);
+			
+			
+			for(int i = 0; i<eventIDs.size(); i++) {
+				
+				int eventID = eventIDs.get(i);
+				
+				SQL = "SELECT name, startTime, endTime, creatorID FROM events WHERE eventID=?";
+				types = "i";
+				params = new Object[1];
+				params[0] = eventID;
+				
+				Object[][]temp = kalenderSystem_getData("kalenderSystem_getData.php", SQL, types, params);
+				matrix[i] = temp[0];
+				
+				try {
+					
+					matrix[i][1] = df.parse((String) matrix[i][1]);
+					matrix[i][2] = df.parse((String) matrix[i][2]);
+				
+				} catch(Exception e) {
+					
+					e.printStackTrace();
+					return false;
+				}
+				
+				/*
+				System.out.println(df.format(startTime));
+				System.out.println(df.format(endTime));
+				System.out.println("**************************************");
+				System.out.println(df.format((Date)matrix[i][1]));
+				System.out.println(df.format((Date)matrix[i][2]));
+				
+				*/
+				System.out.println(startTime.compareTo((Date)matrix[i][1]));
+				System.out.println(endTime.compareTo((Date)matrix[i][2]));
+				
+				if(startTime.compareTo((Date)matrix[i][1])>=0 && startTime.compareTo((Date)matrix[i][2])<0) {
+					
+					JOptionPane.showMessageDialog(null, "Du försöker dubbelboka dig! \nDär ligger redan "+matrix[i][0]+" som börjar "+df.format((Date)matrix[i][1])+" och slutar "+df.format((Date)matrix[i][2]));
+					return false;
+					
+				} else if (endTime.compareTo((Date)matrix[i][1])>0 && endTime.compareTo((Date) matrix[i][2])<=0) {
+					
+					JOptionPane.showMessageDialog(null, "Du försöker dubbelboka dig! \nDär ligger redan "+matrix[i][0]+" som börjar "+df.format((Date)matrix[i][1])+" och slutar "+df.format((Date)matrix[i][2]));
+					return false;
+					
+				} else if (startTime.compareTo((Date)matrix[i][1]) <0 && endTime.compareTo((Date)matrix[i][2])>0) {
+					
+					JOptionPane.showMessageDialog(null, "Du försöker dubbelboka dig! \nDär ligger redan "+matrix[i][0]+" som börjar "+df.format((Date)matrix[i][1])+" och slutar "+df.format((Date)matrix[i][2]));
+					return false;
+				
+				} else if (startTime.compareTo((Date)matrix[i][1]) == 0 && endTime.compareTo((Date)matrix[i][2]) == 0) {
+					
+					JOptionPane.showMessageDialog(null, "Du försöker dubbelboka dig! \nDär ligger redan "+matrix[i][0]+" som börjar "+df.format((Date)matrix[i][1])+" och slutar "+df.format((Date)matrix[i][2]));
+					return false;
+				
+				} else {
+				
+				}
+				
+			}
+			
+			SQL = "INSERT INTO events(creatorID, calendarID, name, startTime, endTime) values(?, ?, ?, ?, ?)";
+			types = "iisss";
+			params = new Object[5];
+			params[0] = userID;
+			params[1] = calendarID;
+			params[2] = eventName;
+			params[3] = df.format(startTime);
+			params[4] = df.format(endTime);
+			
+			kalenderSystem_sendData("kalenderSystem_sendData.php", SQL, types, params);
+			
+		
+		}
 		return false;
 	}
 	
