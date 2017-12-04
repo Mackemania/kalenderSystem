@@ -19,6 +19,7 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -52,7 +53,13 @@ public class kalenderSystem_window extends JFrame {
 		}
 		*/
 		
+		JSplitPane one= new JSplitPane(JSplitPane.VERTICAL_SPLIT);
 		kalenderSystem_connectToServer();
+		
+		JPanel north = new JPanel();
+		JPanel south= new JPanel();
+		one.setTopComponent(north);
+		one.setBottomComponent(south);
 		
 		c.fill = GridBagConstraints.BOTH;
 		c.weightx = 0;
@@ -96,7 +103,7 @@ public class kalenderSystem_window extends JFrame {
 		super.add(mainMenuPanel, BorderLayout.WEST);
 		
 		pack();
-		//super.setVisible(true);
+		super.setVisible(true);
 		
 		boolean run = true;
 		
@@ -120,7 +127,7 @@ public class kalenderSystem_window extends JFrame {
 			}
 		}*/
 		
-		System.exit(0);
+		//System.exit(0);
 	}
 	
 	public Object[][] kalenderSystem_getActivities() {
