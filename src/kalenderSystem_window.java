@@ -104,7 +104,7 @@ public class kalenderSystem_window extends JFrame {
 		super.add(mainMenuPanel, BorderLayout.WEST);
 		
 		pack();
-		super.setVisible(true);
+		//super.setVisible(true);
 		
 		boolean run = true;
 		
@@ -114,7 +114,7 @@ public class kalenderSystem_window extends JFrame {
 		try {
 			Date start = df.parse("2018-06-04 07:50:00");
 			Date end = df.parse("2018-06-04 08:45:00");
-			kalenderSystem_addActivity(1, "", start, end);
+			//kalenderSystem_addActivity(1, "", start, end);
 		
 		} catch (Exception e) {
 		
@@ -139,7 +139,15 @@ public class kalenderSystem_window extends JFrame {
 			}
 		}*/
 		
-		//System.exit(0);
+		System.exit(0);
+	}
+	
+	public boolean kalenderSystem_deleteActivity() {
+		
+		
+		
+		return false;
+		
 	}
 	
 	public Object[][] kalenderSystem_getActivities() {
@@ -169,45 +177,6 @@ public class kalenderSystem_window extends JFrame {
 			eventIDs.add((int)matrix[i][0]);
 			
 		}
-		
-		
-		matrix = new Object[eventIDs.size()][];
-		
-		
-		/*
-		 * Today ska ändras till startTime
-		 * 
-		 */
-		Date today = new Date();
-		Calendar calendar = Calendar.getInstance();
-		calendar.clear(Calendar.MILLISECOND);
-		calendar.clear(Calendar.SECOND);
-		today.setTime(calendar.getTimeInMillis());
-		
-		String str_date  = df.format(today);
-		
-		System.out.println(str_date);
-		
-		Vector<Integer> relevantIDs = new Vector<Integer>();
-		
-		for(int i = 0; i<eventIDs.size(); i++) {
-			
-			int eventID = eventIDs.get(i);
-			
-			SQL = "SELECT eventID FROM events WHERE eventID=? AND startTime>?";
-			types = "is";
-			params = new Object[2];
-			params[0] = eventID;
-			params[1] = str_date;
-			
-			Object[][]temp = kalenderSystem_getData("kalenderSystem_getData.php", SQL, types, params);
-			
-			relevantIDs.add((int)temp[0][0]);
-			
-		}
-		
-		eventIDs = new Vector<Integer>();
-		eventIDs = relevantIDs;
 		
 		for(int i = 0; i<eventIDs.size(); i++) {
 			
@@ -353,6 +322,7 @@ public class kalenderSystem_window extends JFrame {
 		
 		
 		try {
+			//System.out.println(str_url);
 			URL url = new URL(str_url);
 			URLConnection conn = url.openConnection();
 			InputStream is = conn.getInputStream();
