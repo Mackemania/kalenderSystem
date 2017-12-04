@@ -70,7 +70,7 @@ public class kalenderSystem_window extends JFrame {
 		
 		//c.insets = new Insets(15, 15, 0, 15);
 		c.fill = GridBagConstraints.HORIZONTAL;
-		String[] menuNames = {"Startsida", "Logga in"};
+		String[] menuNames = {"Logga in", "Registrera dig"};
 		JButton[] buttons = new JButton[menuNames.length];
 		
 		
@@ -97,7 +97,7 @@ public class kalenderSystem_window extends JFrame {
 		super.add(mainMenuPanel, BorderLayout.WEST);
 		
 		pack();
-		//super.setVisible(true);
+		super.setVisible(true);
 		
 		boolean run = true;
 		
@@ -132,7 +132,7 @@ public class kalenderSystem_window extends JFrame {
 			}
 		}*/
 		
-		System.exit(0);
+		//System.exit(0);
 	}
 	
 	public Object[][] kalenderSystem_getActivities() {
