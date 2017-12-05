@@ -54,13 +54,7 @@ public class kalenderSystem_window extends JFrame {
 		}
 		*/
 		
-		JSplitPane one= new JSplitPane(JSplitPane.VERTICAL_SPLIT);
 		kalenderSystem_connectToServer();
-		
-		JPanel north = new JPanel();
-		JPanel south= new JPanel();
-		one.setTopComponent(north);
-		one.setBottomComponent(south);
 		
 		c.fill = GridBagConstraints.BOTH;
 		c.weightx = 0;
@@ -97,10 +91,8 @@ public class kalenderSystem_window extends JFrame {
 		temp.setLayout(new BorderLayout());
 		temp.add(menuPanel, BorderLayout.NORTH);
 		
-		//Scroll width = 12
 		JScrollPane mainMenuPanel = new JScrollPane(temp);
 		mainMenuPanel.setPreferredSize(new Dimension((int)temp.getPreferredSize().getWidth()+30, (int)temp.getPreferredSize().getHeight()));
-		mainMenuPanel.setBorder(null);
 		super.add(mainMenuPanel, BorderLayout.WEST);
 		
 		pack();
