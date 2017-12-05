@@ -1,5 +1,6 @@
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
@@ -10,6 +11,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -32,7 +35,7 @@ import javax.swing.SwingConstants;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-public class kalenderSystem_window extends JFrame implements ComponentListener, ActionListener{
+public class kalenderSystem_window extends JFrame implements ComponentListener, ActionListener, KeyListener{
 	
 	private JPanel breadCrumb;
 	private JPanel contentPane;
@@ -245,7 +248,7 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 	
 	public void kalenderSystem_showRegisterPane() {
 		
-		contentPane.setLayout(new GridLayout(15,1));
+		contentPane.setLayout(new GridLayout(20,1));
 		
 		String[] registerText= {"", "KalenderSystem", "Registrera dig", "", "Användarnamn", "Lösenord", "Bekräfta lösenord", "E-Mail", "Förnamn", "Efternamn"};
 		JLabel[] registerLabels= new JLabel[registerText.length];
@@ -257,6 +260,9 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 		JTextField emailTextField = new JTextField();
 		JTextField firstNameTextField = new JTextField();
 		JTextField lastNameTextField = new JTextField();
+		
+		passwordTextField.addKeyListener(this);
+		passwordConfirm.addKeyListener(this);
 		
 		for(int i=0; i<registerText.length; i++) {
 			
@@ -293,6 +299,7 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 				
 				registerLabels[i].setFont(newFont);
 				registerLabels[i].setHorizontalAlignment(SwingConstants.LEFT);
+				passwordConfirm.setName(registerText[i]);
 				passwordConfirm.setFont(newFont);
 				contentPane.add(passwordConfirm);
 				
@@ -301,6 +308,7 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 				registerLabels[i].setFont(newFont);
 				registerLabels[i].setHorizontalAlignment(SwingConstants.LEFT);
 				emailTextField.setFont(newFont);
+				emailTextField.setName(registerText[i]);
 				contentPane.add(emailTextField);
 				
 			} else if(registerText[i].equals("Förnamn")) {
@@ -308,17 +316,19 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 				registerLabels[i].setFont(newFont);
 				registerLabels[i].setHorizontalAlignment(SwingConstants.LEFT);
 				firstNameTextField.setFont(newFont);
+				firstNameTextField.setName(registerText[i]);
 				contentPane.add(firstNameTextField);
 				
 			}
 			 else if(registerText[i].equals("Efternamn")) {
 					
-					registerLabels[i].setFont(newFont);
-					registerLabels[i].setHorizontalAlignment(SwingConstants.LEFT);
-					lastNameTextField.setFont(newFont);
-					contentPane.add(lastNameTextField);
+				registerLabels[i].setFont(newFont);
+				registerLabels[i].setHorizontalAlignment(SwingConstants.LEFT);
+				lastNameTextField.setFont(newFont);
+				lastNameTextField.setName(registerText[i]);
+				contentPane.add(lastNameTextField);
 					
-				}
+			}
 		}
 		
 		JButton registerButton= new JButton("Registrera dig");
@@ -930,7 +940,7 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 						break;
 						
 					case("Registrera dig"):
-						//Här ska jag skicka datan till phpn och in i databasen
+						kalenderSystem_register("Användarnamn", "Lösenord", "E-Mail", "Förnamn", "Efternamn");
 						break;
 						
 					case("menuLogga in"):
@@ -949,6 +959,49 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 			
 			break;
 		}
+	}
+
+	@Override
+	public void keyPressed(KeyEvent arg0) {
+		
+		
+	}
+
+	@Override
+	public void keyReleased(KeyEvent arg0) {
+		
+		Component[] comps = contentPane.getComponents();
+		char[]password = new char[0];
+		char[]passwordConfirm = new char[0];
+		for(int i=0; i<comps.length; i++) {
+			
+			if(comps[i].getName().equals("Lösenord")) {
+				
+				password = ((JPasswordField)comps[i]).getPassword();
+			} else if(comps[i].getName().equals("Bekräfta lösenord")) {
+				
+				passwordConfirm = ((JPasswordField)comps[i]).getPassword();
+			}
+		}
+		
+		if(password.length == passwordConfirm.length) {
+			
+			String str_password = "";
+			String str_passwordConfirm = "";
+			for(int i=0; i<password.length; i++) {
+				
+				str_password = str_password+password[i];
+				str_passwordConfirm = str_passwordConfirm+passwordConfirm[i];
+				
+			}
+		}
+		
+	}
+
+	@Override
+	public void keyTyped(KeyEvent arg0) {
+		
+		
 	}
 
 }
