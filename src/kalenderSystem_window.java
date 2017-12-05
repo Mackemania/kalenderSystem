@@ -1,31 +1,46 @@
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.GridLayout;
 import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
 import java.text.DateFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.Vector;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPasswordField;
 import javax.swing.JScrollPane;
-import javax.swing.JSplitPane;
+import javax.swing.JTextField;
+import javax.swing.SwingConstants;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-public class kalenderSystem_window extends JFrame {
+public class kalenderSystem_window extends JFrame implements ComponentListener, ActionListener{
+	
+	private JPanel breadCrumb;
+	private JPanel contentPane;
+	private JPanel containerFiller1;
+	private JPanel containerFiller2;
+	private JTextField usernameTextField;
+	private JPasswordField passwordTextField;
+	private JLabel info;
 	
 	GridBagConstraints c = new GridBagConstraints();
 	private int x = 0;
@@ -38,7 +53,7 @@ public class kalenderSystem_window extends JFrame {
 	public kalenderSystem_window() {
 		super("Kalender");
 		super.setDefaultCloseOperation(EXIT_ON_CLOSE);
-		super.setLocation(100, 100);
+		super.setLocation(2080, 100);
 		super.setPreferredSize(new Dimension(1200, 675));
 		super.setLayout(new BorderLayout());
 		
@@ -81,6 +96,8 @@ public class kalenderSystem_window extends JFrame {
 			c.gridy = y;
 			
 			buttons[i] = new JButton(menuNames[i]);
+			buttons[i].addActionListener(this);
+			buttons[i].setActionCommand("menu"+menuNames[i]);
 			menuPanel.add(buttons[i], c);
 			
 			y++;
@@ -95,13 +112,50 @@ public class kalenderSystem_window extends JFrame {
 		mainMenuPanel.setPreferredSize(new Dimension((int)temp.getPreferredSize().getWidth()+30, (int)temp.getPreferredSize().getHeight()));
 		super.add(mainMenuPanel, BorderLayout.WEST);
 		
+		JPanel container = new JPanel();
+		container.setLayout(new BorderLayout());
+		
+		JPanel top = new JPanel();
+		top.setLayout(new GridLayout(1,2));
+		
+		breadCrumb = new JPanel();
+		breadCrumb.setPreferredSize(new Dimension(1000,50));
+		breadCrumb.setBackground(new Color(0, 150, 0));
+		breadCrumb.setLayout(new GridLayout(1, 10));
+		
+		JPanel breadCrumbFiller= new JPanel();
+		
+		contentPane= new JPanel();
+		
+		containerFiller1= new JPanel();
+		containerFiller1.setPreferredSize(new Dimension(303, 575));
+		containerFiller2= new JPanel();
+		containerFiller2.setPreferredSize(new Dimension(303, 575));
+		
+		JScrollPane contentScroll = new JScrollPane(contentPane);
+		contentScroll.setPreferredSize(new Dimension(666, 575));
+		contentScroll.setBorder(null);
+		
+		kalenderSystem_showLoginPane();
+		
+		top.add(breadCrumb);
+		top.add(breadCrumbFiller);
+		
+		container.add(top, BorderLayout.NORTH);
+		
+		container.add(containerFiller1, BorderLayout.WEST);
+		container.add(containerFiller2, BorderLayout.EAST);
+		container.add(contentScroll, BorderLayout.CENTER);
+		container.addComponentListener(this);
+		
+		super.add(container, BorderLayout.CENTER);
 		pack();
-		//super.setVisible(true);
+		super.setVisible(true);
 		
 		boolean run = true;
 		
 		//System.out.println(kalenderSystem_register("Tobben", "Admin", "admisnn@cals.se", "Test", "Test"));
-		kalenderSystem_login("Mackemania", "Admin");
+		//kalenderSystem_login("Mackemania", "Admin");
 		
 		try {
 			Date start = df.parse("2018-06-04 07:50:00");
@@ -131,7 +185,154 @@ public class kalenderSystem_window extends JFrame {
 			}
 		}*/
 		
-		System.exit(0);
+		//System.exit(0);
+	}
+	
+	public void kalenderSystem_showLoginPane() {
+		
+		contentPane.setLayout(new GridLayout(15,1));
+		//contentPane.setBackground(new Color(255,0,0));
+		
+		String[] loginText= {"", "", "KalenderSystem", "Logga In", "", "Användarnamn", "Lösenord"};
+		JLabel[] loginLabels= new JLabel[loginText.length];
+		
+		usernameTextField= new JTextField();
+		passwordTextField= new JPasswordField();
+		
+		for(int i=0; i<loginText.length; i++) {
+			
+			loginLabels[i]= new JLabel(loginText[i], SwingConstants.CENTER);
+			Font newFont = new Font("Arial", 0, 32);
+			loginLabels[i].setFont(newFont);
+			contentPane.add(loginLabels[i]);
+			
+			
+			if(loginText[i].equals("Användarnamn")) {
+				
+				newFont = new Font("Arial", 0, 20);
+				loginLabels[i].setFont(newFont);
+				loginLabels[i].setHorizontalAlignment(SwingConstants.LEFT);
+				usernameTextField.setFont(newFont);
+				contentPane.add(usernameTextField);
+				
+			} else if(loginText[i].equals("Lösenord")) {
+				
+				newFont = new Font("Arial", 0, 20);
+				loginLabels[i].setFont(newFont);
+				loginLabels[i].setHorizontalAlignment(SwingConstants.LEFT);
+				passwordTextField.setFont(newFont);
+				contentPane.add(passwordTextField);
+				
+				
+				
+			}
+		}
+		
+		JButton loginButton= new JButton("Logga in");
+		loginButton.addActionListener(this);
+		loginButton.setActionCommand("Logga in");
+		contentPane.add(loginButton);
+		
+		Font newFont = new Font("Arial", 0, 20);
+		info = new JLabel("");
+		info.setFont(newFont);
+		contentPane.add(info);
+		
+		super.pack();
+		super.repaint();
+		
+	}
+	
+	public void kalenderSystem_showRegisterPane() {
+		
+		contentPane.setLayout(new GridLayout(15,1));
+		
+		String[] registerText= {"", "KalenderSystem", "Registrera dig", "", "Användarnamn", "Lösenord", "Bekräfta lösenord", "E-Mail", "Förnamn", "Efternamn"};
+		JLabel[] registerLabels= new JLabel[registerText.length];
+		
+		usernameTextField= new JTextField();
+		passwordTextField= new JPasswordField();
+		
+		JPasswordField passwordConfirm = new JPasswordField();
+		JTextField emailTextField = new JTextField();
+		JTextField firstNameTextField = new JTextField();
+		JTextField lastNameTextField = new JTextField();
+		
+		for(int i=0; i<registerText.length; i++) {
+			
+			Font newFont;
+			if(i<=2) {
+				
+				newFont = new Font("Arial", 0, 32);
+			} else {
+				
+				newFont = new Font("Arial", 0, 20);
+			}
+			
+			registerLabels[i]= new JLabel(registerText[i], SwingConstants.CENTER);
+			
+			registerLabels[i].setFont(newFont);
+			contentPane.add(registerLabels[i]);
+			
+			
+			if(registerText[i].equals("Användarnamn")) {
+				
+				registerLabels[i].setFont(newFont);
+				registerLabels[i].setHorizontalAlignment(SwingConstants.LEFT);
+				usernameTextField.setFont(newFont);
+				contentPane.add(usernameTextField);
+				
+			} else if(registerText[i].equals("Lösenord")) {
+				
+				registerLabels[i].setFont(newFont);
+				registerLabels[i].setHorizontalAlignment(SwingConstants.LEFT);
+				passwordTextField.setFont(newFont);
+				contentPane.add(passwordTextField);
+				
+			} else if(registerText[i].equals("Bekräfta lösenord")) {
+				
+				registerLabels[i].setFont(newFont);
+				registerLabels[i].setHorizontalAlignment(SwingConstants.LEFT);
+				passwordConfirm.setFont(newFont);
+				contentPane.add(passwordConfirm);
+				
+			} else if(registerText[i].equals("E-Mail")) {
+				
+				registerLabels[i].setFont(newFont);
+				registerLabels[i].setHorizontalAlignment(SwingConstants.LEFT);
+				emailTextField.setFont(newFont);
+				contentPane.add(emailTextField);
+				
+			} else if(registerText[i].equals("Förnamn")) {
+				
+				registerLabels[i].setFont(newFont);
+				registerLabels[i].setHorizontalAlignment(SwingConstants.LEFT);
+				firstNameTextField.setFont(newFont);
+				contentPane.add(firstNameTextField);
+				
+			}
+			 else if(registerText[i].equals("Efternamn")) {
+					
+					registerLabels[i].setFont(newFont);
+					registerLabels[i].setHorizontalAlignment(SwingConstants.LEFT);
+					lastNameTextField.setFont(newFont);
+					contentPane.add(lastNameTextField);
+					
+				}
+		}
+		
+		JButton registerButton= new JButton("Registrera dig");
+		registerButton.addActionListener(this);
+		registerButton.setActionCommand("Registrera dig");
+		contentPane.add(registerButton);
+		
+		Font newFont = new Font("Arial", 0, 20);
+		info = new JLabel("");
+		info.setFont(newFont);
+		contentPane.add(info);
+		
+		super.pack();
+		super.repaint();	
 	}
 	
 	public boolean kalenderSystem_deleteActivity() {
@@ -329,37 +530,42 @@ public class kalenderSystem_window extends JFrame {
 			}
 			is.close();
 			
-			//System.out.println(retval);
-			try {
-				JSONObject json = new JSONObject(retval);
-				userID = json.getInt("0");
-				hashkey = json.getString("1");
-				
-				//System.out.println(hashkey);
-				
-				String SQL = "SELECT hashID FROM hash WHERE hash = ? AND userID = ?";
-				String types = "si";
-				Object[] params = {hashkey, userID};
-				
-				Object[][] matrix = kalenderSystem_getData("kalenderSystem_getData.php", SQL, types, params);
-				
-				if((int) matrix[0][0] == 0) {
+			if(!retval.equals("0")) {
+				//System.out.println(retval);
+				try {
+					JSONObject json = new JSONObject(retval);
+					userID = json.getInt("0");
 					
-					userID = -1;
-					hashkey = "";
+					hashkey = json.getString("1");
 					
-					return false;
+					//System.out.println(hashkey);
 					
-				} else {
+					String SQL = "SELECT hashID FROM hash WHERE hash = ? AND userID = ?";
+					String types = "si";
+					Object[] params = {hashkey, userID};
 					
-					return true;
+					Object[][] matrix = kalenderSystem_getData("kalenderSystem_getData.php", SQL, types, params);
+					
+					if((int) matrix[0][0] == 0) {
+						
+						userID = -1;
+						hashkey = "";
+						
+						return false;
+						
+					} else {
+						
+						return true;
+					}
+				
+				} catch(Exception e) {
+				
+					System.out.println(retval);
+					e.printStackTrace();
+				
 				}
-			
-			} catch(Exception e) {
-			
-				System.out.println(retval);
-				e.printStackTrace();
-			
+			} else {
+				return false;
 			}
 		
 		} catch (IOException e) {
@@ -369,7 +575,6 @@ public class kalenderSystem_window extends JFrame {
 		
 		return false;
 	}
-	
 	
 	public boolean kalenderSystem_register(String username, String password, String email, String firstName, String lastName) {
 		
@@ -501,7 +706,6 @@ public class kalenderSystem_window extends JFrame {
 		
 		return false;
 	}
-	
 	
 	
 	/* Används för att skicka data till filen 'path' på localhost.
@@ -653,4 +857,98 @@ public class kalenderSystem_window extends JFrame {
 		}
 		
 	}
+
+	
+	public void componentHidden(ComponentEvent arg) {
+		
+		
+	}
+
+	
+	public void componentMoved(ComponentEvent arg) {
+		
+		
+	}
+
+	
+	public void componentResized(ComponentEvent arg) {
+		
+		System.out.println(arg);
+		int width = (int)(arg.getComponent().getSize().getWidth()/3);
+		containerFiller1.setPreferredSize(new Dimension(width, 575));
+		containerFiller2.setPreferredSize(new Dimension(width, 575));
+		
+		super.repaint();
+		
+		
+	}
+
+	
+	public void componentShown(ComponentEvent arg) {
+		
+		
+	}
+
+	
+	public void actionPerformed(ActionEvent arg) {
+		
+		String component= arg.getSource().getClass().getSimpleName();
+		
+		switch(component) {
+			case("JButton"):
+			
+				JButton button = (JButton)arg.getSource();
+				
+				switch(button.getActionCommand()) {
+					case("Logga in"):
+						String username = usernameTextField.getText();
+						char[] char_password = passwordTextField.getPassword();
+						String password = "";
+						
+						for(int i=0; i<char_password.length; i++) {
+						
+							password = password+char_password[i];
+						}
+						System.out.println(username+" "+password);
+						
+						if(kalenderSystem_login(username, password)) {
+							
+							info.setText("");
+							
+							
+						} else {
+							
+							info.setText("Du loggades inte in");
+							
+						}
+						
+						break;
+						
+					case("menuRegistrera dig"):
+						contentPane.removeAll();
+						kalenderSystem_showRegisterPane();
+						break;
+						
+					case("Registrera dig"):
+						//Här ska jag skicka datan till phpn och in i databasen
+						break;
+						
+					case("menuLogga in"):
+						
+						contentPane.removeAll();
+						kalenderSystem_showLoginPane();
+						break;
+					
+					default:
+						
+						break;
+				}
+			break;
+			
+		default:
+			
+			break;
+		}
+	}
+
 }
