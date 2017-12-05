@@ -56,7 +56,7 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 	public kalenderSystem_window() {
 		super("Kalender");
 		super.setDefaultCloseOperation(EXIT_ON_CLOSE);
-		super.setLocation(2080, 100);
+		super.setLocation(-1880, 100);
 		super.setPreferredSize(new Dimension(1200, 675));
 		super.setLayout(new BorderLayout());
 		
@@ -170,26 +170,15 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 			e.printStackTrace();
 		
 		}
-		
-		
-		/*thread = new Thread();
-		while(run) {
-			
-			repaint();
-			
-			try {
-				
-				Thread.sleep(10);
-			
-			} catch (InterruptedException e) {
-				
-				e.printStackTrace();
-				
-			}
-		}*/
-		
-		//System.exit(0);
 	}
+	
+	/* Ritar ut login formuläret på fönstret
+	 * 
+	 * Inputs:
+	 * 		-
+	 * Outputs:
+	 * 		-
+	 */
 	
 	public void kalenderSystem_showLoginPane() {
 		
@@ -301,6 +290,7 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 				registerLabels[i].setHorizontalAlignment(SwingConstants.LEFT);
 				passwordConfirm.setName(registerText[i]);
 				passwordConfirm.setFont(newFont);
+				passwordConfirm.setName(registerText[i]);
 				contentPane.add(passwordConfirm);
 				
 			} else if(registerText[i].equals("E-Mail")) {
@@ -353,6 +343,13 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 		
 	}
 	
+	
+	/* Används för att hämta alla aktiviteter i en kalender
+	 * Inputs:
+	 * 		-
+	 * Outputs.
+	 * 		Object[][] matrix, Innehåller all information om eventen i en kalender.
+	 */
 	public Object[][] kalenderSystem_getActivities() {
 
 
@@ -399,6 +396,16 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 		
 	}
 	
+	/* Används för att lägga till en aktivitet i en kalender
+	 * Inputs:
+	 * 		-int calendarID, id:t på den kalendern man vill lägga till aktiviteten i
+	 * 		-String eventName, Namnet på den aktivitet man vill lägga till
+	 * 		-Date startTime, startdatumet och tiden på det event man lägger till
+	 * 		-Date endTime, slutdatumet och tiden på det event man lägger till.
+	 * 
+	 * Outputs.
+	 * 		boolean, returnerar true om aktiviteten lades till, annars returnerar den false
+	 */
 	public boolean kalenderSystem_addActivity(int calendarID, String eventName, Date startTime, Date endTime) {
 		
 		if(startTime.compareTo(endTime)<0) {
@@ -516,6 +523,15 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 		return false;
 	}
 	
+	
+	/* Används för att logga in en ny användare
+	 * Inputs:
+	 * 		-String username, det användarnamn man försöker logga in med
+	 * 		-String password, det lösenord man försöker logga in med
+	 * 
+	 * Outputs:
+	 * 		-boolean, får true om inloggningen lyckats annars returnar den false 
+	 */
 	public boolean kalenderSystem_login(String username, String password) {
 		
 		String str_url = "http://localhost/kalenderSystem_server/login.php";
@@ -556,16 +572,16 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 					
 					Object[][] matrix = kalenderSystem_getData("kalenderSystem_getData.php", SQL, types, params);
 					
-					if((int) matrix[0][0] == 0) {
+					if(matrix.length==1) {
+						
+						return true;
+						
+					} else {
 						
 						userID = -1;
 						hashkey = "";
 						
 						return false;
-						
-					} else {
-						
-						return true;
 					}
 				
 				} catch(Exception e) {
@@ -586,6 +602,18 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 		return false;
 	}
 	
+	
+	/* Används för att registrera en ny användare
+	 * Inputs:
+	 * 		-String username, det användarnamn man vill ha
+	 * 		-String password, det lösenord man vill ha
+	 * 		-String email, den email man vill registrera sig med
+	 * 		-String firstName, förnamnet på personen som ska registreras
+	 * 		-String lastName, efternamnet på personen som ska registreras
+	 * 
+	 * Outputs:
+	 * 		-boolean, får true om registreringen lyckats annars returnar den false 
+	 */
 	public boolean kalenderSystem_register(String username, String password, String email, String firstName, String lastName) {
 		
 		String SQL = "INSERT INTO users(username, password, email, firstName, lastName) VALUES(?, ?, ?, ?, ?)";
@@ -644,6 +672,10 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 	 * 		-String path, filnamet på den fil man vill komma åt från servern
 	 * 		-String SQL, SQL-uttrycket som man vill exekvera
 	 * 		-String types, En textsträng där typerna av påföljande variabler är där s = string, i = int, d = double och b = blob
+	 * 
+	 * Outputs:
+	 * 		-boolean, får true om frågan lyckats.
+	 * 
 	 */
 	public boolean kalenderSystem_sendData(String path, String SQL, String types, Object[] params) {
 		
