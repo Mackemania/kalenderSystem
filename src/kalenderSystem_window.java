@@ -130,6 +130,8 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 		
 		contentPane= new JPanel();
 		
+		kalenderSystem_showLoginPane();
+		
 		containerFiller1= new JPanel();
 		containerFiller1.setPreferredSize(new Dimension(303, 575));
 		containerFiller2= new JPanel();
@@ -138,8 +140,6 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 		JScrollPane contentScroll = new JScrollPane(contentPane);
 		contentScroll.setPreferredSize(new Dimension(666, 575));
 		contentScroll.setBorder(null);
-		
-		kalenderSystem_showLoginPane();
 		
 		top.add(breadCrumb);
 		top.add(breadCrumbFiller);
@@ -155,7 +155,7 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 		pack();
 		super.setVisible(true);
 		
-		boolean run = true;
+		
 		
 		//System.out.println(kalenderSystem_register("Tobben", "Admin", "admisnn@cals.se", "Test", "Test"));
 		//kalenderSystem_login("Mackemania", "Admin");
@@ -172,6 +172,7 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 		}
 	}
 	
+	
 	/* Ritar ut login formuläret på fönstret
 	 * 
 	 * Inputs:
@@ -182,8 +183,9 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 	
 	public void kalenderSystem_showLoginPane() {
 		
+		contentPane.setPreferredSize(new Dimension(345, 450));
 		contentPane.setLayout(new GridLayout(15,1));
-		//contentPane.setBackground(new Color(255,0,0));
+		contentPane.setBackground(new Color(255,0,0));
 		
 		String[] loginText= {"", "", "KalenderSystem", "Logga In", "", "Användarnamn", "Lösenord"};
 		JLabel[] loginLabels= new JLabel[loginText.length];
@@ -236,6 +238,7 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 	}
 	
 	public void kalenderSystem_showRegisterPane() {
+		
 		
 		contentPane.setLayout(new GridLayout(20,1));
 		
@@ -395,6 +398,7 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 		return matrix;
 		
 	}
+	
 	
 	/* Används för att lägga till en aktivitet i en kalender
 	 * Inputs:
@@ -919,6 +923,7 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 		int width = (int)(arg.getComponent().getSize().getWidth()/3);
 		containerFiller1.setPreferredSize(new Dimension(width, 575));
 		containerFiller2.setPreferredSize(new Dimension(width, 575));
+		//System.out.println(contentPane.getSize());
 		
 		super.repaint();
 		
@@ -1004,15 +1009,20 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 		
 		Component[] comps = contentPane.getComponents();
 		char[]password = new char[0];
+		int passwordIndex = 0;
 		char[]passwordConfirm = new char[0];
+		int passwordConfirmIndex = 0;
 		for(int i=0; i<comps.length; i++) {
 			
 			if(comps[i].getName().equals("Lösenord")) {
 				
 				password = ((JPasswordField)comps[i]).getPassword();
+				passwordIndex = i;
+				
 			} else if(comps[i].getName().equals("Bekräfta lösenord")) {
 				
 				passwordConfirm = ((JPasswordField)comps[i]).getPassword();
+				passwordConfirmIndex = i;
 			}
 		}
 		
@@ -1024,6 +1034,12 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 				
 				str_password = str_password+password[i];
 				str_passwordConfirm = str_passwordConfirm+passwordConfirm[i];
+				
+			}
+			
+			if(str_password.equals(str_passwordConfirm)) {
+				
+				contentPane.getComponent(passwordIndex).setBackground(new Color(230, 255, 230));
 				
 			}
 		}
