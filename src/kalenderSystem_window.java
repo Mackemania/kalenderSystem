@@ -41,9 +41,11 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 	private JPanel contentPane;
 	private JPanel containerFiller1;
 	private JPanel containerFiller2;
+	JScrollPane contentScroll;
 	private JTextField usernameTextField;
 	private JPasswordField passwordTextField;
 	private JLabel info;
+	private int startWidth = 1200;
 	
 	GridBagConstraints c = new GridBagConstraints();
 	private int x = 0;
@@ -57,10 +59,12 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 	public kalenderSystem_window() {
 		super("Kalender");
 		super.setDefaultCloseOperation(EXIT_ON_CLOSE);
+
 		super.setLocation(2080, 100);
-		super.setPreferredSize(new Dimension(1200, 675));
+		super.setPreferredSize(new Dimension(1200, 750));
+
 		super.setLayout(new BorderLayout());
-		
+		super.addComponentListener(this);
 		/*
 		try {
 		
@@ -131,16 +135,16 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 		JPanel breadCrumbFiller= new JPanel();
 		
 		contentPane= new JPanel();
-		
+		contentPane.setPreferredSize(new Dimension(345, 450));
 		kalenderSystem_showLoginPane();
 		
 		containerFiller1= new JPanel();
-		containerFiller1.setPreferredSize(new Dimension(303, 575));
+		containerFiller1.setPreferredSize(new Dimension(300, 575));
 		containerFiller2= new JPanel();
-		containerFiller2.setPreferredSize(new Dimension(303, 575));
+		containerFiller2.setPreferredSize(new Dimension(300, 575));
 		
-		JScrollPane contentScroll = new JScrollPane(contentPane);
-		contentScroll.setPreferredSize(new Dimension(666, 575));
+		contentScroll = new JScrollPane(contentPane);
+		contentScroll.setPreferredSize(new Dimension(400, 575));
 		contentScroll.setBorder(null);
 		
 		top.add(breadCrumb);
@@ -148,19 +152,19 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 		
 		container.add(top, BorderLayout.NORTH);
 		
+		container.add(contentScroll, BorderLayout.CENTER);
 		container.add(containerFiller1, BorderLayout.WEST);
 		container.add(containerFiller2, BorderLayout.EAST);
-		container.add(contentScroll, BorderLayout.CENTER);
-		container.addComponentListener(this);
 		
 		super.add(container, BorderLayout.CENTER);
 		pack();
 		super.setVisible(true);
 		
+		//startWidth = (int) contentPane.getSize().getWidth();
 		
-		
-		//System.out.println(kalenderSystem_register("Tobben", "Admin", "admisnn@cals.se", "Test", "Test"));
-		//kalenderSystem_login("Mackemania", "Admin");
+		kalenderSystem_register("Mackemania", "Admin", "admin@cals.se", "Test", "Test");
+		kalenderSystem_login("Mackemania", "Admin");
+		//kalenderSystem_createCalendar("calendar");
 		
 		try {
 			Date start = df.parse("2018-06-04 07:50:00");
@@ -175,7 +179,7 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 	}
 	
 	
-	/* Ritar ut login formuläret på fönstret
+	/* Ritar ut login formulÃ¤ret pÃ¥ fÃ¶nstret
 	 * 
 	 * Inputs:
 	 * 		-
@@ -184,10 +188,10 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 	 */
 	public void kalenderSystem_showLoginPane() {
 		
-		contentPane.setPreferredSize(new Dimension(345, 450));
+		
 		contentPane.setLayout(new GridLayout(15,1));
 		
-		String[] loginText= {"", "", "KalenderSystem", "Logga In", "", "Användarnamn", "Lösenord"};
+		String[] loginText= {"", "", "KalenderSystem", "Logga In", "", "AnvÃ¤ndarnamn", "LÃ¶senord"};
 		JLabel[] loginLabels= new JLabel[loginText.length];
 		
 		usernameTextField= new JTextField();
@@ -201,7 +205,7 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 			contentPane.add(loginLabels[i]);
 			
 			
-			if(loginText[i].equals("Användarnamn")) {
+			if(loginText[i].equals("AnvÃ¤ndarnamn")) {
 				
 				newFont = new Font("Arial", 0, 20);
 				loginLabels[i].setFont(newFont);
@@ -209,15 +213,13 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 				usernameTextField.setFont(newFont);
 				contentPane.add(usernameTextField);
 				
-			} else if(loginText[i].equals("Lösenord")) {
+			} else if(loginText[i].equals("LÃ¶senord")) {
 				
 				newFont = new Font("Arial", 0, 20);
 				loginLabels[i].setFont(newFont);
 				loginLabels[i].setHorizontalAlignment(SwingConstants.LEFT);
 				passwordTextField.setFont(newFont);
 				contentPane.add(passwordTextField);
-				
-				
 				
 			}
 		}
@@ -232,17 +234,17 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 		info.setFont(newFont);
 		contentPane.add(info);
 		
-		super.pack();
+		contentPane.repaint();
 		super.repaint();
 		
 	}
 	
 	public void kalenderSystem_showRegisterPane() {
 		
-		
-		contentPane.setLayout(new GridLayout(18,1));
-		
-		String[] registerText= {"", "KalenderSystem", "Registrera dig", "", "Användarnamn", "Lösenord", "Bekräfta lösenord", "E-Mail", "Förnamn", "Efternamn"};
+		contentPane.setLayout(new GridLayout(19,1));
+
+		String[] registerText= {"", "KalenderSystem", "Registrera dig", "", "AnvÃ¤ndarnamn", "LÃ¶senord", "BekrÃ¤fta lÃ¶senord", "E-Mail", "FÃ¶rnamn", "Efternamn", ""};
+
 		JLabel[] registerLabels= new JLabel[registerText.length];
 		
 		usernameTextField= new JTextField();
@@ -273,14 +275,14 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 			contentPane.add(registerLabels[i]);
 			
 			
-			if(registerText[i].equals("Användarnamn")) {
+			if(registerText[i].equals("AnvÃ¤ndarnamn")) {
 				
 				registerLabels[i].setFont(newFont);
 				registerLabels[i].setHorizontalAlignment(SwingConstants.LEFT);
 				usernameTextField.setFont(newFont);
 				contentPane.add(usernameTextField);
 				
-			} else if(registerText[i].equals("Lösenord")) {
+			} else if(registerText[i].equals("LÃ¶senord")) {
 				
 				registerLabels[i].setFont(newFont);
 				registerLabels[i].setHorizontalAlignment(SwingConstants.LEFT);
@@ -289,7 +291,7 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 				System.out.println(passwordTextField.getName());
 				contentPane.add(passwordTextField);
 				
-			} else if(registerText[i].equals("Bekräfta lösenord")) {
+			} else if(registerText[i].equals("BekrÃ¤fta lÃ¶senord")) {
 				
 				registerLabels[i].setFont(newFont);
 				registerLabels[i].setHorizontalAlignment(SwingConstants.LEFT);
@@ -306,7 +308,7 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 				emailTextField.setName(registerText[i]);
 				contentPane.add(emailTextField);
 				
-			} else if(registerText[i].equals("Förnamn")) {
+			} else if(registerText[i].equals("FÃ¶rnamn")) {
 				
 				registerLabels[i].setFont(newFont);
 				registerLabels[i].setHorizontalAlignment(SwingConstants.LEFT);
@@ -337,8 +339,9 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 		info.setFont(newFont);
 		contentPane.add(info);
 		
-		super.pack();
-		super.repaint();	
+		contentPane.repaint();
+		pack();
+		super.repaint();
 	}
 	
 	public boolean kalenderSystem_deleteActivity(int eventID) {
@@ -355,11 +358,11 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 	}
 	
 	
-	/* Används för att hämta alla aktiviteter i en kalender
+	/* AnvÃ¤nds fÃ¶r att hÃ¤mta alla aktiviteter i en kalender
 	 * Inputs:
 	 * 		-
 	 * Outputs.
-	 * 		Object[][] matrix, Innehåller all information om eventen i en kalender.
+	 * 		Object[][] matrix, InnehÃ¥ller all information om eventen i en kalender.
 	 */
 	public Object[][] kalenderSystem_getActivities() {
 
@@ -408,12 +411,12 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 	}
 	
 	
-	/* Används för att lägga till en aktivitet i en kalender
+	/* AnvÃ¤nds fÃ¶r att lÃ¤gga till en aktivitet i en kalender
 	 * Inputs:
-	 * 		-int calendarID, id:t på den kalendern man vill lägga till aktiviteten i
-	 * 		-String eventName, Namnet på den aktivitet man vill lägga till
-	 * 		-Date startTime, startdatumet och tiden på det event man lägger till
-	 * 		-Date endTime, slutdatumet och tiden på det event man lägger till.
+	 * 		-int calendarID, id:t pÃ¥ den kalendern man vill lÃ¤gga till aktiviteten i
+	 * 		-String eventName, Namnet pÃ¥ den aktivitet man vill lÃ¤gga till
+	 * 		-Date startTime, startdatumet och tiden pÃ¥ det event man lÃ¤gger till
+	 * 		-Date endTime, slutdatumet och tiden pÃ¥ det event man lÃ¤gger till.
 	 * 
 	 * Outputs.
 	 * 		boolean, returnerar true om aktiviteten lades till, annars returnerar den false
@@ -452,7 +455,7 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 			
 			
 			/*
-			 * Today ska ändras till startTime
+			 * Today ska Ã¤ndras till startTime
 			 * 
 			 */
 			
@@ -490,27 +493,27 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 				System.out.println(df.format((Date)matrix[i][2]));
 				
 				*/
-				System.out.println(startTime.compareTo((Date)matrix[i][1]));
-				System.out.println(endTime.compareTo((Date)matrix[i][2]));
+				//System.out.println(startTime.compareTo((Date)matrix[i][1]));
+				//System.out.println(endTime.compareTo((Date)matrix[i][2]));
 				
 				if(startTime.compareTo((Date)matrix[i][1])>=0 && startTime.compareTo((Date)matrix[i][2])<0) {
 					
-					JOptionPane.showMessageDialog(null, "Du försöker dubbelboka dig! \nDär ligger redan "+matrix[i][0]+" som börjar "+df.format((Date)matrix[i][1])+" och slutar "+df.format((Date)matrix[i][2]));
+					JOptionPane.showMessageDialog(null, "Du fÃ¶rsÃ¶ker dubbelboka dig! \nDÃ¤r ligger redan "+matrix[i][0]+" som bÃ¶rjar "+df.format((Date)matrix[i][1])+" och slutar "+df.format((Date)matrix[i][2]));
 					return false;
 					
 				} else if (endTime.compareTo((Date)matrix[i][1])>0 && endTime.compareTo((Date) matrix[i][2])<=0) {
 					
-					JOptionPane.showMessageDialog(null, "Du försöker dubbelboka dig! \nDär ligger redan "+matrix[i][0]+" som börjar "+df.format((Date)matrix[i][1])+" och slutar "+df.format((Date)matrix[i][2]));
+					JOptionPane.showMessageDialog(null, "Du fÃ¶rsÃ¶ker dubbelboka dig! \nDÃ¤r ligger redan "+matrix[i][0]+" som bÃ¶rjar "+df.format((Date)matrix[i][1])+" och slutar "+df.format((Date)matrix[i][2]));
 					return false;
 					
 				} else if (startTime.compareTo((Date)matrix[i][1]) <0 && endTime.compareTo((Date)matrix[i][2])>0) {
 					
-					JOptionPane.showMessageDialog(null, "Du försöker dubbelboka dig! \nDär ligger redan "+matrix[i][0]+" som börjar "+df.format((Date)matrix[i][1])+" och slutar "+df.format((Date)matrix[i][2]));
+					JOptionPane.showMessageDialog(null, "Du fÃ¶rsÃ¶ker dubbelboka dig! \nDÃ¤r ligger redan "+matrix[i][0]+" som bÃ¶rjar "+df.format((Date)matrix[i][1])+" och slutar "+df.format((Date)matrix[i][2]));
 					return false;
 				
 				} else if (startTime.compareTo((Date)matrix[i][1]) == 0 && endTime.compareTo((Date)matrix[i][2]) == 0) {
 					
-					JOptionPane.showMessageDialog(null, "Du försöker dubbelboka dig! \nDär ligger redan "+matrix[i][0]+" som börjar "+df.format((Date)matrix[i][1])+" och slutar "+df.format((Date)matrix[i][2]));
+					JOptionPane.showMessageDialog(null, "Du fÃ¶rsÃ¶ker dubbelboka dig! \nDÃ¤r ligger redan "+matrix[i][0]+" som bÃ¶rjar "+df.format((Date)matrix[i][1])+" och slutar "+df.format((Date)matrix[i][2]));
 					return false;
 				
 				} else {
@@ -536,13 +539,35 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 	}
 	
 	
-	/* Används för att logga in en ny användare
+	public void kalenderSystem_createCalendar(String name) {
+		
+		String SQL = "SELECT calendarID FROM calendars WHERE calendarID>=? ORDER BY calendarID DESC";
+		String types = "i";
+		Object[] params = {0};
+		
+		Object[][] matrix = kalenderSystem_getData("kalenderSystem_getData.php", SQL, types, params);
+		
+		int calID = (int) matrix[0][0];
+		calID++;
+		
+		SQL = "INSERT INTO calendars(calendarID, name, creatorID) VALUES(?, ?, ?)";
+		types = "isi";
+		params = new Object[3];
+		
+		params[0] = calID;
+		params[1] = name;
+		params[2] = userID;
+		kalenderSystem_sendData("kalenderSystem_sendData.php", SQL, types, params);
+		
+	}
+	
+	/* AnvÃ¤nds fÃ¶r att logga in en ny anvÃ¤ndare
 	 * Inputs:
-	 * 		-String username, det användarnamn man försöker logga in med
-	 * 		-String password, det lösenord man försöker logga in med
+	 * 		-String username, det anvÃ¤ndarnamn man fÃ¶rsÃ¶ker logga in med
+	 * 		-String password, det lÃ¶senord man fÃ¶rsÃ¶ker logga in med
 	 * 
 	 * Outputs:
-	 * 		-boolean, får true om inloggningen lyckats annars returnar den false 
+	 * 		-boolean, fÃ¥r true om inloggningen lyckats annars returnar den false 
 	 */
 	public boolean kalenderSystem_login(String username, String password) {
 		
@@ -560,7 +585,7 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 			
 			String retval = "";
 			
-			//Hämtar allt som står på "webbsidan"
+			//HÃ¤mtar allt som stÃ¥r pÃ¥ "webbsidan"
 			while(is.available()>0) {
 				
 				retval = retval+(char)is.read();
@@ -601,6 +626,9 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 							params[0] = 0;
 							params[1] = "DeletedEvents";
 							params[2] = 1;
+							
+							kalenderSystem_sendData("kalenderSystem_sendData.php", SQL, types, params);
+							
 						}
 						return true;
 						
@@ -614,7 +642,7 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 				
 				} catch(Exception e) {
 				
-					System.out.println(retval);
+					System.out.println("Login:"+retval);
 					e.printStackTrace();
 				
 				}
@@ -631,16 +659,16 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 	}
 	
 	
-	/* Används för att registrera en ny användare
+	/* AnvÃ¤nds fÃ¶r att registrera en ny anvÃ¤ndare
 	 * Inputs:
-	 * 		-String username, det användarnamn man vill ha
-	 * 		-String password, det lösenord man vill ha
+	 * 		-String username, det anvÃ¤ndarnamn man vill ha
+	 * 		-String password, det lÃ¶senord man vill ha
 	 * 		-String email, den email man vill registrera sig med
-	 * 		-String firstName, förnamnet på personen som ska registreras
-	 * 		-String lastName, efternamnet på personen som ska registreras
+	 * 		-String firstName, fÃ¶rnamnet pÃ¥ personen som ska registreras
+	 * 		-String lastName, efternamnet pÃ¥ personen som ska registreras
 	 * 
 	 * Outputs:
-	 * 		-boolean, får true om registreringen lyckats annars returnar den false 
+	 * 		-boolean, fÃ¥r true om registreringen lyckats annars returnar den false 
 	 */
 	public boolean kalenderSystem_register(String username, String password, String email, String firstName, String lastName) {
 		
@@ -663,7 +691,7 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 			
 			String retval = "";
 			
-			//Hämtar allt som står på "webbsidan"
+			//HÃ¤mtar allt som stÃ¥r pÃ¥ "webbsidan"
 			while(is.available()>0) {
 				
 				retval = retval+(char)is.read();
@@ -679,7 +707,7 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 			
 			} else {
 				
-				System.out.println(retval);
+				System.out.println("Register: "+retval);
 				return false;
 			
 			}
@@ -694,32 +722,32 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 	}
 	
 	
-	/* Används för att skicka data till filen 'path' på localhost.
+	/* AnvÃ¤nds fÃ¶r att skicka data till filen 'path' pÃ¥ localhost.
 	 * 
 	 * Inputs:
-	 * 		-String path, filnamet på den fil man vill komma åt från servern
+	 * 		-String path, filnamet pÃ¥ den fil man vill komma Ã¥t frÃ¥n servern
 	 * 		-String SQL, SQL-uttrycket som man vill exekvera
-	 * 		-String types, En textsträng där typerna av påföljande variabler är där s = string, i = int, d = double och b = blob
+	 * 		-String types, En textstrÃ¤ng dÃ¤r typerna av pÃ¥fÃ¶ljande variabler Ã¤r dÃ¤r s = string, i = int, d = double och b = blob
 	 * 
 	 * Outputs:
-	 * 		-boolean, får true om frågan lyckats.
+	 * 		-boolean, fÃ¥r true om frÃ¥gan lyckats.
 	 * 
 	 */
 	public boolean kalenderSystem_sendData(String path, String SQL, String types, Object[] params) {
 		
-		//Skapar en url som leder till valfri fil på localhost
+		//Skapar en url som leder till valfri fil pÃ¥ localhost
 		String str_url = "http://localhost/kalenderSystem_server/"+path;
 		String query = "?";
 		
-		//Skapar en fråga som servern kommer ta emot.
-		if(types.equals("¤")) {
+		//Skapar en frÃ¥ga som servern kommer ta emot.
+		if(types.equals("Â¤")) {
 			
 			query = query+"SQL="+SQL+"&types="+types;
 			
 		} else {
 			
 
-			//Formaterar om frågan till ett JSON object
+			//Formaterar om frÃ¥gan till ett JSON object
 			JSONArray sendParams = new JSONArray(params);
 			//System.out.println(sendParams.toString());
 			
@@ -750,7 +778,7 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 			
 			String retval = "";
 			
-			//Hämtar allt som står på "webbsidan"
+			//HÃ¤mtar allt som stÃ¥r pÃ¥ "webbsidan"
 			while(is.available()>0) {
 				
 				retval = retval+(char)is.read();
@@ -763,7 +791,7 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 				return true;
 			
 			} else {
-				System.out.println(retval);
+				System.out.println("SendData: "+retval);
 				return false;
 			
 			}
@@ -778,30 +806,30 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 	}
 	
 	
-	/* Används för att skicka data till filen 'path' på localhost.
+	/* AnvÃ¤nds fÃ¶r att skicka data till filen 'path' pÃ¥ localhost.
 	 * 
 	 * Inputs:
-	 * 		-String path, filnamet på den fil man vill komma åt från servern
+	 * 		-String path, filnamet pÃ¥ den fil man vill komma Ã¥t frÃ¥n servern
 	 * 		-String SQL, SQL-uttrycket som man vill exekvera
-	 * 		-String types, En textsträng där typerna av påföljande variabler är där s = string, i = int, d = double och b = blob
+	 * 		-String types, En textstrÃ¤ng dÃ¤r typerna av pÃ¥fÃ¶ljande variabler Ã¤r dÃ¤r s = string, i = int, d = double och b = blob
 	 * 		
 	 * Outputs:
-	 * 		-Object[][] matrix som innehåller all den data man får från SQL frågan.
+	 * 		-Object[][] matrix som innehÃ¥ller all den data man fÃ¥r frÃ¥n SQL frÃ¥gan.
 	 */
 	public Object[][] kalenderSystem_getData(String path, String SQL, String types, Object[] params) {
 		
-		//Skapar en url som leder till valfri fil på localhost
+		//Skapar en url som leder till valfri fil pÃ¥ localhost
 		String str_url = "http://localhost/kalenderSystem_server/"+path;
 		String query = "?";
 		
-		//Skapar en fråga som servern kommer ta emot.
-		if(types.equals("¤")) {
+		//Skapar en frÃ¥ga som servern kommer ta emot.
+		if(types.equals("Â¤")) {
 			
 			query = query+"SQL="+SQL+"&types="+types;
 			
 		} else {
 			
-			//Formaterar om frågan till ett JSON object
+			//Formaterar om frÃ¥gan till ett JSON object
 			JSONArray sendParams = new JSONArray(params);
 			//System.out.println(sendParams.toString());
 			
@@ -831,7 +859,7 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 			
 			String retval = "";
 			
-			//hämntar allt som står på "webbsidan"
+			//hÃ¤mntar allt som stÃ¥r pÃ¥ "webbsidan"
 			while(is.available()>0) {
 				
 				retval = retval+(char)is.read();
@@ -845,7 +873,7 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 				JSONObject jsons = new JSONObject(retval);
 				//System.out.println(jsons.toString());
 				
-				//Gör om JSONObjektet till en Object-matris
+				//GÃ¶r om JSONObjektet till en Object-matris
 				int iMax = 0;
 				int jMax = 0;
 				//System.out.println(jsons.get("0"));
@@ -896,7 +924,7 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 				return matrix;
 				
 			} catch (Exception e) {
-				System.out.println(retval);
+				System.out.println("getData:"+retval);
 				e.printStackTrace();
 			}
 		
@@ -944,11 +972,24 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 	
 	public void componentResized(ComponentEvent arg) {
 		
-		System.out.println(arg);
-		int width = (int)(arg.getComponent().getSize().getWidth()/3);
-		containerFiller1.setPreferredSize(new Dimension(width, 575));
-		containerFiller2.setPreferredSize(new Dimension(width, 575));
-		//System.out.println(contentPane.getSize());
+
+		//System.out.println(arg);
+		
+		String argName = arg.getSource().getClass().getSimpleName();
+		
+		double difference = startWidth - ((JFrame)arg.getSource()).getSize().getWidth();
+		//System.out.println(difference);
+		
+		int width = (int) (300-(difference/2));
+		if(width<=0) {
+			
+			width = 0;
+		}
+		
+		//System.out.println("w"+width);
+		containerFiller1.setPreferredSize(new Dimension(width, 600));
+		containerFiller2.setPreferredSize(new Dimension(width, 600));
+		contentPane.setPreferredSize(new Dimension(400, 600));
 		
 		super.repaint();
 		
@@ -958,7 +999,7 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 	
 	public void componentShown(ComponentEvent arg) {
 		
-		
+	
 	}
 
 	
@@ -981,7 +1022,7 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 						
 							password = password+char_password[i];
 						}
-						System.out.println(username+" "+password);
+						//System.out.println(username+" "+password);
 						
 						if(kalenderSystem_login(username, password)) {
 							
@@ -1045,12 +1086,12 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 			String className = comps[i].getClass().getSimpleName();
 			
 			if(className.equals("JPasswordField")) {
-				if(comps[i].getName().equals("Lösenord")) {
+				if(comps[i].getName().equals("LÃ¶senord")) {
 					
 					password = ((JPasswordField)comps[i]).getPassword();
 					passwordIndex = i;
 					
-				} else if(comps[i].getName().equals("Bekräfta lösenord")) {
+				} else if(comps[i].getName().equals("BekrÃ¤fta lÃ¶senord")) {
 					
 					passwordConfirm = ((JPasswordField)comps[i]).getPassword();
 					passwordConfirmIndex = i;
