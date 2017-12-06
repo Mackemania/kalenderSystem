@@ -158,9 +158,8 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 		
 		//startWidth = (int) contentPane.getSize().getWidth();
 		
-		kalenderSystem_register("Mackemania", "Admin", "admin@cals.se", "Test", "Test");
+		//kalenderSystem_register("Mackemania", "Admin", "admin@cals.se", "Test", "Test");
 		kalenderSystem_login("Mackemania", "Admin");
-		//kalenderSystem_createCalendar("calendar");
 		
 		try {
 			Date start = df.parse("2018-06-04 07:50:00");
