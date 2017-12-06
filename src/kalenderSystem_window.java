@@ -180,7 +180,6 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 	 * Outputs:
 	 * 		-
 	 */
-	
 	public void kalenderSystem_showLoginPane() {
 		
 		contentPane.setPreferredSize(new Dimension(345, 450));
@@ -338,8 +337,13 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 		super.repaint();	
 	}
 	
-	public boolean kalenderSystem_deleteActivity() {
+	public boolean kalenderSystem_deleteActivity(int eventID) {
 		
+		String SQL = "UPDATE event SET calendarID = ? WHERE eventID=?";
+		String types = "ii";
+		Object[] params = {0, eventID};
+		
+		kalenderSystem_sendData("kalenderSystem_sendData.php", SQL, types, params);
 		
 		
 		return false;
@@ -578,6 +582,22 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 					
 					if(matrix.length==1) {
 						
+						SQL = "SELECT calendarID FROM calendars WHERE calendarID=?";
+						types = "i";
+						params = new Object[1];
+						params[0] = 0;
+						
+						matrix = kalenderSystem_getData("kalenderSystem_getData.php", SQL, types, params);
+						
+						if(matrix.length<1) {
+							
+							SQL = "INSERT INTO calendars(calendarID, name, creatorID) values(?, ?, ?)";
+							types = "isi";
+							params = new Object[3];
+							params[0] = 0;
+							params[1] = "DeletedEvents";
+							params[2] = 1;
+						}
 						return true;
 						
 					} else {
@@ -886,6 +906,7 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 	}
 	
 	public void kalenderSystem_connectToServer() {
+		
 		try {
 			//Connectar till servern
 			//System.out.println(str_url);
@@ -1040,6 +1061,7 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 			if(str_password.equals(str_passwordConfirm)) {
 				
 				contentPane.getComponent(passwordIndex).setBackground(new Color(230, 255, 230));
+				contentPane.getComponent(passwordConfirmIndex).setBackground(new Color(230, 255, 230));
 				
 			}
 		}
