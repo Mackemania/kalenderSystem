@@ -51,12 +51,13 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 	private String hashkey = "";
 	private int userID = -1;
 	Thread thread;
+	private JButton registerButton;
 	private DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 	
 	public kalenderSystem_window() {
 		super("Kalender");
 		super.setDefaultCloseOperation(EXIT_ON_CLOSE);
-		super.setLocation(-1880, 100);
+		super.setLocation(2080, 100);
 		super.setPreferredSize(new Dimension(1200, 675));
 		super.setLayout(new BorderLayout());
 		
@@ -101,6 +102,7 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 			buttons[i] = new JButton(menuNames[i]);
 			buttons[i].addActionListener(this);
 			buttons[i].setActionCommand("menu"+menuNames[i]);
+			
 			menuPanel.add(buttons[i], c);
 			
 			y++;
@@ -184,7 +186,6 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 		
 		contentPane.setPreferredSize(new Dimension(345, 450));
 		contentPane.setLayout(new GridLayout(15,1));
-		contentPane.setBackground(new Color(255,0,0));
 		
 		String[] loginText= {"", "", "KalenderSystem", "Logga In", "", "Användarnamn", "Lösenord"};
 		JLabel[] loginLabels= new JLabel[loginText.length];
@@ -239,7 +240,7 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 	public void kalenderSystem_showRegisterPane() {
 		
 		
-		contentPane.setLayout(new GridLayout(20,1));
+		contentPane.setLayout(new GridLayout(18,1));
 		
 		String[] registerText= {"", "KalenderSystem", "Registrera dig", "", "Användarnamn", "Lösenord", "Bekräfta lösenord", "E-Mail", "Förnamn", "Efternamn"};
 		JLabel[] registerLabels= new JLabel[registerText.length];
@@ -284,6 +285,8 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 				registerLabels[i].setFont(newFont);
 				registerLabels[i].setHorizontalAlignment(SwingConstants.LEFT);
 				passwordTextField.setFont(newFont);
+				passwordTextField.setName(registerText[i]);
+				System.out.println(passwordTextField.getName());
 				contentPane.add(passwordTextField);
 				
 			} else if(registerText[i].equals("Bekräfta lösenord")) {
@@ -323,10 +326,11 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 			}
 		}
 		
-		JButton registerButton= new JButton("Registrera dig");
+		registerButton= new JButton("Registrera dig");
 		registerButton.addActionListener(this);
 		registerButton.setActionCommand("Registrera dig");
 		contentPane.add(registerButton);
+		registerButton.setEnabled(false);
 		
 		Font newFont = new Font("Arial", 0, 20);
 		info = new JLabel("");
@@ -998,7 +1002,11 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 						break;
 						
 					case("Registrera dig"):
-						kalenderSystem_register("Användarnamn", "Lösenord", "E-Mail", "Förnamn", "Efternamn");
+						Component[] comps = contentPane.getComponents();
+						String anvandarnamn= comps[4].getClass().getSimpleName();
+						System.out.println(anvandarnamn);
+						
+						//kalenderSystem_register(comps[4], comps[5], comps[7], comps[8], comps[9]);
 						break;
 						
 					case("menuLogga in"):
@@ -1034,16 +1042,19 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 		char[]passwordConfirm = new char[0];
 		int passwordConfirmIndex = 0;
 		for(int i=0; i<comps.length; i++) {
+			String className = comps[i].getClass().getSimpleName();
 			
-			if(comps[i].getName().equals("Lösenord")) {
-				
-				password = ((JPasswordField)comps[i]).getPassword();
-				passwordIndex = i;
-				
-			} else if(comps[i].getName().equals("Bekräfta lösenord")) {
-				
-				passwordConfirm = ((JPasswordField)comps[i]).getPassword();
-				passwordConfirmIndex = i;
+			if(className.equals("JPasswordField")) {
+				if(comps[i].getName().equals("Lösenord")) {
+					
+					password = ((JPasswordField)comps[i]).getPassword();
+					passwordIndex = i;
+					
+				} else if(comps[i].getName().equals("Bekräfta lösenord")) {
+					
+					passwordConfirm = ((JPasswordField)comps[i]).getPassword();
+					passwordConfirmIndex = i;
+				}
 			}
 		}
 		
@@ -1055,18 +1066,25 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 				
 				str_password = str_password+password[i];
 				str_passwordConfirm = str_passwordConfirm+passwordConfirm[i];
-				
-				
 			}
 			
 			if(str_password.equals(str_passwordConfirm)) {
 				
 				contentPane.getComponent(passwordIndex).setBackground(new Color(230, 255, 230));
 				contentPane.getComponent(passwordConfirmIndex).setBackground(new Color(230, 255, 230));
+				registerButton.setEnabled(true);
+			} else {
 				
+				contentPane.getComponent(passwordIndex).setBackground(new Color(255, 230, 230));
+				contentPane.getComponent(passwordConfirmIndex).setBackground(new Color(255, 230, 230));
+				registerButton.setEnabled(false);
 			}
+		} else {
+			
+			contentPane.getComponent(passwordIndex).setBackground(new Color(255, 230, 230));
+			contentPane.getComponent(passwordConfirmIndex).setBackground(new Color(255, 230, 230));
+			registerButton.setEnabled(false);
 		}
-		
 	}
 
 	@Override
