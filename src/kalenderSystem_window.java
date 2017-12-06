@@ -1025,6 +1025,7 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 				str_password = str_password+password[i];
 				str_passwordConfirm = str_passwordConfirm+passwordConfirm[i];
 				
+				
 			}
 		}
 		
