@@ -41,9 +41,11 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 	private JPanel contentPane;
 	private JPanel containerFiller1;
 	private JPanel containerFiller2;
+	JScrollPane contentScroll;
 	private JTextField usernameTextField;
 	private JPasswordField passwordTextField;
 	private JLabel info;
+	private int startWidth = 1200;
 	
 	GridBagConstraints c = new GridBagConstraints();
 	private int x = 0;
@@ -57,9 +59,9 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 		super("Kalender");
 		super.setDefaultCloseOperation(EXIT_ON_CLOSE);
 		super.setLocation(-1880, 100);
-		super.setPreferredSize(new Dimension(1200, 675));
+		super.setPreferredSize(new Dimension(1200, 750));
 		super.setLayout(new BorderLayout());
-		
+		super.addComponentListener(this);
 		/*
 		try {
 		
@@ -129,16 +131,16 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 		JPanel breadCrumbFiller= new JPanel();
 		
 		contentPane= new JPanel();
-		
+		contentPane.setPreferredSize(new Dimension(345, 450));
 		kalenderSystem_showLoginPane();
 		
 		containerFiller1= new JPanel();
-		containerFiller1.setPreferredSize(new Dimension(303, 575));
+		containerFiller1.setPreferredSize(new Dimension(300, 575));
 		containerFiller2= new JPanel();
-		containerFiller2.setPreferredSize(new Dimension(303, 575));
+		containerFiller2.setPreferredSize(new Dimension(300, 575));
 		
-		JScrollPane contentScroll = new JScrollPane(contentPane);
-		contentScroll.setPreferredSize(new Dimension(666, 575));
+		contentScroll = new JScrollPane(contentPane);
+		contentScroll.setPreferredSize(new Dimension(400, 575));
 		contentScroll.setBorder(null);
 		
 		top.add(breadCrumb);
@@ -146,19 +148,19 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 		
 		container.add(top, BorderLayout.NORTH);
 		
+		container.add(contentScroll, BorderLayout.CENTER);
 		container.add(containerFiller1, BorderLayout.WEST);
 		container.add(containerFiller2, BorderLayout.EAST);
-		container.add(contentScroll, BorderLayout.CENTER);
-		container.addComponentListener(this);
 		
 		super.add(container, BorderLayout.CENTER);
 		pack();
 		super.setVisible(true);
 		
+		//startWidth = (int) contentPane.getSize().getWidth();
 		
-		
-		//System.out.println(kalenderSystem_register("Tobben", "Admin", "admisnn@cals.se", "Test", "Test"));
-		//kalenderSystem_login("Mackemania", "Admin");
+		kalenderSystem_register("Mackemania", "Admin", "admin@cals.se", "Test", "Test");
+		kalenderSystem_login("Mackemania", "Admin");
+		//kalenderSystem_createCalendar("calendar");
 		
 		try {
 			Date start = df.parse("2018-06-04 07:50:00");
@@ -182,7 +184,7 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 	 */
 	public void kalenderSystem_showLoginPane() {
 		
-		contentPane.setPreferredSize(new Dimension(345, 450));
+		
 		contentPane.setLayout(new GridLayout(15,1));
 		contentPane.setBackground(new Color(255,0,0));
 		
@@ -216,8 +218,6 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 				passwordTextField.setFont(newFont);
 				contentPane.add(passwordTextField);
 				
-				
-				
 			}
 		}
 		
@@ -231,17 +231,16 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 		info.setFont(newFont);
 		contentPane.add(info);
 		
-		super.pack();
+		contentPane.repaint();
 		super.repaint();
 		
 	}
 	
 	public void kalenderSystem_showRegisterPane() {
 		
+		contentPane.setLayout(new GridLayout(19,1));
 		
-		contentPane.setLayout(new GridLayout(20,1));
-		
-		String[] registerText= {"", "KalenderSystem", "Registrera dig", "", "Användarnamn", "Lösenord", "Bekräfta lösenord", "E-Mail", "Förnamn", "Efternamn"};
+		String[] registerText= {"", "KalenderSystem", "Registrera dig", "", "Användarnamn", "Lösenord", "Bekräfta lösenord", "E-Mail", "Förnamn", "Efternamn", ""};
 		JLabel[] registerLabels= new JLabel[registerText.length];
 		
 		usernameTextField= new JTextField();
@@ -333,8 +332,9 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 		info.setFont(newFont);
 		contentPane.add(info);
 		
-		super.pack();
-		super.repaint();	
+		contentPane.repaint();
+		pack();
+		super.repaint();
 	}
 	
 	public boolean kalenderSystem_deleteActivity(int eventID) {
@@ -486,8 +486,8 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 				System.out.println(df.format((Date)matrix[i][2]));
 				
 				*/
-				System.out.println(startTime.compareTo((Date)matrix[i][1]));
-				System.out.println(endTime.compareTo((Date)matrix[i][2]));
+				//System.out.println(startTime.compareTo((Date)matrix[i][1]));
+				//System.out.println(endTime.compareTo((Date)matrix[i][2]));
 				
 				if(startTime.compareTo((Date)matrix[i][1])>=0 && startTime.compareTo((Date)matrix[i][2])<0) {
 					
@@ -531,6 +531,28 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 		return false;
 	}
 	
+	
+	public void kalenderSystem_createCalendar(String name) {
+		
+		String SQL = "SELECT calendarID FROM calendars WHERE calendarID>=? ORDER BY calendarID DESC";
+		String types = "i";
+		Object[] params = {0};
+		
+		Object[][] matrix = kalenderSystem_getData("kalenderSystem_getData.php", SQL, types, params);
+		
+		int calID = (int) matrix[0][0];
+		calID++;
+		
+		SQL = "INSERT INTO calendars(calendarID, name, creatorID) VALUES(?, ?, ?)";
+		types = "isi";
+		params = new Object[3];
+		
+		params[0] = calID;
+		params[1] = name;
+		params[2] = userID;
+		kalenderSystem_sendData("kalenderSystem_sendData.php", SQL, types, params);
+		
+	}
 	
 	/* Används för att logga in en ny användare
 	 * Inputs:
@@ -597,6 +619,9 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 							params[0] = 0;
 							params[1] = "DeletedEvents";
 							params[2] = 1;
+							
+							kalenderSystem_sendData("kalenderSystem_sendData.php", SQL, types, params);
+							
 						}
 						return true;
 						
@@ -610,7 +635,7 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 				
 				} catch(Exception e) {
 				
-					System.out.println(retval);
+					System.out.println("Login:"+retval);
 					e.printStackTrace();
 				
 				}
@@ -675,7 +700,7 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 			
 			} else {
 				
-				System.out.println(retval);
+				System.out.println("Register: "+retval);
 				return false;
 			
 			}
@@ -759,7 +784,7 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 				return true;
 			
 			} else {
-				System.out.println(retval);
+				System.out.println("SendData: "+retval);
 				return false;
 			
 			}
@@ -892,7 +917,7 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 				return matrix;
 				
 			} catch (Exception e) {
-				System.out.println(retval);
+				System.out.println("getData:"+retval);
 				e.printStackTrace();
 			}
 		
@@ -940,11 +965,24 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 	
 	public void componentResized(ComponentEvent arg) {
 		
-		System.out.println(arg);
-		int width = (int)(arg.getComponent().getSize().getWidth()/3);
-		containerFiller1.setPreferredSize(new Dimension(width, 575));
-		containerFiller2.setPreferredSize(new Dimension(width, 575));
-		//System.out.println(contentPane.getSize());
+
+		//System.out.println(arg);
+		
+		String argName = arg.getSource().getClass().getSimpleName();
+		
+		double difference = startWidth - ((JFrame)arg.getSource()).getSize().getWidth();
+		//System.out.println(difference);
+		
+		int width = (int) (300-(difference/2));
+		if(width<=0) {
+			
+			width = 0;
+		}
+		
+		//System.out.println("w"+width);
+		containerFiller1.setPreferredSize(new Dimension(width, 600));
+		containerFiller2.setPreferredSize(new Dimension(width, 600));
+		contentPane.setPreferredSize(new Dimension(400, 600));
 		
 		super.repaint();
 		
@@ -954,7 +992,7 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 	
 	public void componentShown(ComponentEvent arg) {
 		
-		
+	
 	}
 
 	
@@ -977,7 +1015,7 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 						
 							password = password+char_password[i];
 						}
-						System.out.println(username+" "+password);
+						//System.out.println(username+" "+password);
 						
 						if(kalenderSystem_login(username, password)) {
 							
