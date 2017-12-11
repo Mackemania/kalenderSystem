@@ -55,6 +55,7 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 	Thread thread;
 	private JButton registerButton;
 	private DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+	private String currentFrame = "Login";
 	
 	public kalenderSystem_window() {
 		super("Kalender");
@@ -189,7 +190,7 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 		
 		
 		contentPane.setLayout(new GridLayout(15,1));
-		
+		currentFrame = "Login";
 		String[] loginText= {"", "", "KalenderSystem", "Logga In", "", "Användarnamn", "Lösenord"};
 		JLabel[] loginLabels= new JLabel[loginText.length];
 		
@@ -210,6 +211,7 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 				loginLabels[i].setFont(newFont);
 				loginLabels[i].setHorizontalAlignment(SwingConstants.LEFT);
 				usernameTextField.setFont(newFont);
+				usernameTextField.addKeyListener(this);
 				contentPane.add(usernameTextField);
 				
 			} else if(loginText[i].equals("Lösenord")) {
@@ -218,6 +220,7 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 				loginLabels[i].setFont(newFont);
 				loginLabels[i].setHorizontalAlignment(SwingConstants.LEFT);
 				passwordTextField.setFont(newFont);
+				passwordTextField.addKeyListener(this);
 				contentPane.add(passwordTextField);
 				
 			}
@@ -241,7 +244,8 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 	public void kalenderSystem_showRegisterPane() {
 		
 		contentPane.setLayout(new GridLayout(19,1));
-
+		currentFrame = "Register";
+		
 		String[] registerText= {"", "KalenderSystem", "Registrera dig", "", "Användarnamn", "Lösenord", "Bekräfta lösenord", "E-Mail", "Förnamn", "Efternamn", ""};
 
 		JLabel[] registerLabels= new JLabel[registerText.length];
@@ -341,6 +345,17 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 		contentPane.repaint();
 		pack();
 		super.repaint();
+	}
+	
+	public void kalenderSystem_addActivityPane() {
+		
+		JFrame frame = new JFrame();
+		frame.setSize(500, 500);
+		frame.setLocation(-1890, 100);
+		frame.setPreferredSize(new Dimension(1200, 700));
+		
+		frame.setVisible(true);
+		
 	}
 	
 	public boolean kalenderSystem_deleteActivity(int eventID) {
@@ -1075,66 +1090,94 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 	}
 
 	
-	public void keyPressed(KeyEvent arg0) {
+	public void keyPressed(KeyEvent arg) {
 		
 		
 	}
-
 	
-	public void keyReleased(KeyEvent arg0) {
+	public void keyReleased(KeyEvent arg) {
 		
-		Component[] comps = contentPane.getComponents();
-		char[]password = new char[0];
-		int passwordIndex = 0;
-		char[]passwordConfirm = new char[0];
-		int passwordConfirmIndex = 0;
-		for(int i=0; i<comps.length; i++) {
-			String className = comps[i].getClass().getSimpleName();
-			
-			if(className.equals("JPasswordField")) {
-				if(comps[i].getName().equals("Lösenord")) {
-					
-					password = ((JPasswordField)comps[i]).getPassword();
-					passwordIndex = i;
-					
-				} else if(comps[i].getName().equals("Bekräfta lösenord")) {
-					
-					passwordConfirm = ((JPasswordField)comps[i]).getPassword();
-					passwordConfirmIndex = i;
+		if(currentFrame.equals("Register")) {
+			Component[] comps = contentPane.getComponents();
+			char[]password = new char[0];
+			int passwordIndex = 0;
+			char[]passwordConfirm = new char[0];
+			int passwordConfirmIndex = 0;
+			for(int i=0; i<comps.length; i++) {
+				String className = comps[i].getClass().getSimpleName();
+				
+				if(className.equals("JPasswordField")) {
+					if(comps[i].getName().equals("Lösenord")) {
+						
+						password = ((JPasswordField)comps[i]).getPassword();
+						passwordIndex = i;
+						
+					} else if(comps[i].getName().equals("Bekräfta lösenord")) {
+						
+						passwordConfirm = ((JPasswordField)comps[i]).getPassword();
+						passwordConfirmIndex = i;
+					}
 				}
 			}
-		}
-		
-		if(password.length == passwordConfirm.length && password.length>0) {
 			
-			String str_password = "";
-			String str_passwordConfirm = "";
-			for(int i=0; i<password.length; i++) {
+			if(password.length == passwordConfirm.length && password.length>0) {
 				
-				str_password = str_password+password[i];
-				str_passwordConfirm = str_passwordConfirm+passwordConfirm[i];
-			}
-			
-			if(str_password.equals(str_passwordConfirm)) {
+				String str_password = "";
+				String str_passwordConfirm = "";
+				for(int i=0; i<password.length; i++) {
+					
+					str_password = str_password+password[i];
+					str_passwordConfirm = str_passwordConfirm+passwordConfirm[i];
+				}
 				
-				contentPane.getComponent(passwordIndex).setBackground(new Color(230, 255, 230));
-				contentPane.getComponent(passwordConfirmIndex).setBackground(new Color(230, 255, 230));
-				registerButton.setEnabled(true);
+				if(str_password.equals(str_passwordConfirm)) {
+					
+					contentPane.getComponent(passwordIndex).setBackground(new Color(230, 255, 230));
+					contentPane.getComponent(passwordConfirmIndex).setBackground(new Color(230, 255, 230));
+					registerButton.setEnabled(true);
+				} else {
+					
+					contentPane.getComponent(passwordIndex).setBackground(new Color(255, 230, 230));
+					contentPane.getComponent(passwordConfirmIndex).setBackground(new Color(255, 230, 230));
+					registerButton.setEnabled(false);
+				}
 			} else {
 				
 				contentPane.getComponent(passwordIndex).setBackground(new Color(255, 230, 230));
 				contentPane.getComponent(passwordConfirmIndex).setBackground(new Color(255, 230, 230));
 				registerButton.setEnabled(false);
 			}
-		} else {
+		} else if (currentFrame.equals("Login")) {
 			
-			contentPane.getComponent(passwordIndex).setBackground(new Color(255, 230, 230));
-			contentPane.getComponent(passwordConfirmIndex).setBackground(new Color(255, 230, 230));
-			registerButton.setEnabled(false);
+			if(arg.getKeyCode() == 10) {
+				
+				String username = usernameTextField.getText();
+				char[] char_password = passwordTextField.getPassword();
+				String password = "";
+				
+				for(int i=0; i<char_password.length; i++) {
+				
+					password = password+char_password[i];
+				}
+				//System.out.println(username+" "+password);
+				
+				if(kalenderSystem_login(username, password)) {
+					
+					info.setText("");
+					
+					
+				} else {
+					
+					info.setText("Du loggades inte in");
+					
+				}
+				
+			}
+			
 		}
 	}
 	
-	public void keyTyped(KeyEvent arg0) {
+	public void keyTyped(KeyEvent arg) {
 		
 		
 	}
