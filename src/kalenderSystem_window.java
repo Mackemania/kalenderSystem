@@ -46,6 +46,13 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 	private JPasswordField passwordTextField;
 	private JLabel info;
 	private int startWidth = 1200;
+	private JPasswordField passwordConfirm;
+	private JTextField emailTextField;
+	private JTextField firstNameTextField;
+	private JTextField lastNameTextField;
+	private boolean redopassword;
+	private boolean redoemail;
+	private JPanel menuPanel;
 	
 	GridBagConstraints c = new GridBagConstraints();
 	private int x = 0;
@@ -60,22 +67,11 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 		super("Kalender");
 		super.setDefaultCloseOperation(EXIT_ON_CLOSE);
 
-		super.setLocation(-1780, 100);
+		super.setLocation(2080, 100);
 		super.setPreferredSize(new Dimension(1200, 750));
 
 		super.setLayout(new BorderLayout());
 		super.addComponentListener(this);
-		/*
-		try {
-		
-			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-		
-		} catch (Exception e) {
-		
-			e.printStackTrace();
-		
-		}
-		*/
 		
 		kalenderSystem_connectToServer();
 		
@@ -88,15 +84,12 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 		c.insets = new Insets(15, 0, 0, 0);
 		c.anchor = GridBagConstraints.NORTHWEST;
 		
-		
-		JPanel menuPanel = new JPanel();
+		menuPanel = new JPanel();
 		menuPanel.setLayout(new GridBagLayout());
 		
-		//c.insets = new Insets(15, 15, 0, 15);
 		c.fill = GridBagConstraints.HORIZONTAL;
 		String[] menuNames = {"Logga in", "Registrera dig"};
 		JButton[] buttons = new JButton[menuNames.length];
-		
 		
 		for(int i = 0; i<buttons.length; i++) {
 			
@@ -136,7 +129,8 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 		
 		contentPane= new JPanel();
 		contentPane.setPreferredSize(new Dimension(345, 450));
-		kalenderSystem_showLoginPane();
+		kalenderSystem_login("Mackemania", "Admin");
+		kalenderSystem_showCalendarPane();
 		
 		containerFiller1= new JPanel();
 		containerFiller1.setPreferredSize(new Dimension(300, 575));
@@ -160,10 +154,9 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 		pack();
 		super.setVisible(true);
 		
-		//startWidth = (int) contentPane.getSize().getWidth();
 		
 		//kalenderSystem_register("Mackemania", "Admin", "admin@cals.se", "Test", "Test");
-		kalenderSystem_login("Mackemania", "Admin");
+		
 		
 		try {
 			Date start = df.parse("2018-06-04 07:50:00");
@@ -248,14 +241,14 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 		
 		usernameTextField= new JTextField();
 		passwordTextField= new JPasswordField();
-		
-		JPasswordField passwordConfirm = new JPasswordField();
-		JTextField emailTextField = new JTextField();
-		JTextField firstNameTextField = new JTextField();
-		JTextField lastNameTextField = new JTextField();
+		passwordConfirm = new JPasswordField();
+		emailTextField = new JTextField();
+		firstNameTextField = new JTextField();
+		lastNameTextField = new JTextField();
 		
 		passwordTextField.addKeyListener(this);
 		passwordConfirm.addKeyListener(this);
+		emailTextField.addKeyListener(this);
 		
 		for(int i=0; i<registerText.length; i++) {
 			
@@ -337,6 +330,65 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 		info = new JLabel("");
 		info.setFont(newFont);
 		contentPane.add(info);
+		
+		contentPane.repaint();
+		pack();
+		super.repaint();
+	}
+	
+	public void kalenderSystem_showCalendarPane() {
+		menuPanel.removeAll();
+		c.fill = GridBagConstraints.BOTH;
+		c.weightx = 0;
+		c.weighty = 1;
+		c.gridx = x;
+		c.gridy = y;
+		c.gridwidth = 1;
+		c.insets = new Insets(15, 0, 0, 0);
+		c.anchor = GridBagConstraints.NORTHWEST;
+		
+		menuPanel.setLayout(new GridBagLayout());
+		
+		c.fill = GridBagConstraints.HORIZONTAL;
+		String[] menuNames = {"Årsvy", "Månadsvy", "Dagsvy", "Skapa Aktivitet", "Skapa Kalender", "Inställningar", "Logga ut"};
+		JButton[] buttons = new JButton[menuNames.length];
+		
+		
+		for(int i = 0; i<buttons.length; i++) {
+			
+			c.gridx = x;
+			c.gridy = y;
+			
+			buttons[i] = new JButton(menuNames[i]);
+			buttons[i].addActionListener(this);
+			buttons[i].setActionCommand("menu"+menuNames[i]);
+			
+			menuPanel.add(buttons[i], c);
+			y++;
+			
+			if(buttons[i].getActionCommand().equals("menuDagsvy")) {
+				
+				c.gridy = y;
+				menuPanel.add(new JLabel(""), c);
+				
+				y++;
+			} else if(buttons[i].getActionCommand().equals("menuInställningar")) {
+				
+				c.gridy = y;
+				menuPanel.add(new JLabel(""), c);
+				y++;
+				
+				c.gridy = y;
+				menuPanel.add(new JLabel(hashkey), c);
+				y++;
+				
+			}
+			
+		}
+		
+		contentPane.setLayout(new GridLayout(1,1));
+		
+		Font newFont = new Font("Arial", 0, 20);
 		
 		contentPane.repaint();
 		pack();
@@ -1028,12 +1080,13 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 						
 							password = password+char_password[i];
 						}
-						//System.out.println(username+" "+password);
 						
 						if(kalenderSystem_login(username, password)) {
 							
 							info.setText("");
-							
+							contentPane.removeAll();
+							menuPanel.removeAll();
+							kalenderSystem_showCalendarPane();
 							
 						} else {
 							
@@ -1049,11 +1102,14 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 						break;
 						
 					case("Registrera dig"):
-						Component[] comps = contentPane.getComponents();
-						String anvandarnamn= comps[4].getClass().getSimpleName();
-						System.out.println(anvandarnamn);
 						
-						//kalenderSystem_register(comps[4], comps[5], comps[7], comps[8], comps[9]);
+						String anvandarnamn= usernameTextField.getText();
+						String losenord= passwordTextField.getText();
+						String email= emailTextField.getText();
+						String fnamn= firstNameTextField.getText();
+						String enamn= lastNameTextField.getText();
+						
+						kalenderSystem_register(anvandarnamn, losenord, email, fnamn, enamn);
 						break;
 						
 					case("menuLogga in"):
@@ -1082,6 +1138,10 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 
 	
 	public void keyReleased(KeyEvent arg0) {
+		
+		redopassword = false;
+		redoemail = false;
+		registerButton.setEnabled(false);
 		
 		Component[] comps = contentPane.getComponents();
 		char[]password = new char[0];
@@ -1119,18 +1179,51 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 				
 				contentPane.getComponent(passwordIndex).setBackground(new Color(230, 255, 230));
 				contentPane.getComponent(passwordConfirmIndex).setBackground(new Color(230, 255, 230));
-				registerButton.setEnabled(true);
+				redopassword = true;
 			} else {
 				
 				contentPane.getComponent(passwordIndex).setBackground(new Color(255, 230, 230));
 				contentPane.getComponent(passwordConfirmIndex).setBackground(new Color(255, 230, 230));
-				registerButton.setEnabled(false);
 			}
 		} else {
 			
 			contentPane.getComponent(passwordIndex).setBackground(new Color(255, 230, 230));
 			contentPane.getComponent(passwordConfirmIndex).setBackground(new Color(255, 230, 230));
-			registerButton.setEnabled(false);
+		}
+		
+		Component[] comps1 = contentPane.getComponents();
+		for(int i=0; i<comps.length; i++) {
+			
+			String className = comps1[i].getClass().getSimpleName();
+			if(className.equals("JTextField")) {
+				
+				if(comps1[i].getName() != null) {
+					
+					if(comps1[i].getName().equals("E-Mail")) {
+						
+						String email1 = ((JTextField)comps1[i]).getText();
+						if(email1.contains("@")) {
+							
+							if(email1.split("@").length == 2) {
+							
+								contentPane.getComponent(i).setBackground(new Color(230, 255, 230));
+								redoemail = true;
+							} else {
+								
+								contentPane.getComponent(i).setBackground(new Color(255, 230, 230));
+							}
+						} else {
+							
+							contentPane.getComponent(i).setBackground(new Color(255, 230, 230));
+						}
+					}
+				}
+			}
+		}
+		
+		if(redopassword && redoemail) {
+				
+			registerButton.setEnabled(true);
 		}
 	}
 	
