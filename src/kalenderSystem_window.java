@@ -77,7 +77,7 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 		super.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		super.addWindowListener(this);
 
-		super.setLocation(-1880, 100);
+		super.setLocation(-1220, 100);
 		super.setPreferredSize(new Dimension(1200, 750));
 
 		super.setLayout(new BorderLayout());
@@ -487,7 +487,7 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 			addActivityFrame.setVisible(false);
 		}
 		addActivityFrame = new JFrame();
-		addActivityFrame.setLocation(-1790, 200);
+		addActivityFrame.setLocation(-900, 200);
 		addActivityFrame.setPreferredSize(new Dimension(500, 500));
 		addActivityFrame.setTitle("Skapa ny aktivitet");
 		addActivityFrame.setLayout(new BorderLayout());
@@ -531,7 +531,7 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 		((JButton)com[1]).setText("Välj ett datum");
 		
 
-		String[] labelText = {"Välj startdatum", "Välj slutdatum"};
+		String[] labelText = {"Välj startdatum", "Klockan:", "Välj slutdatum", "Klockan:"};
 		JLabel[] labels = new JLabel[labelText.length];
 		
 		for(int i = 0; i<labels.length; i++) {
@@ -540,10 +540,16 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 			labels[i].setFont(newFont);
 			panel.add(labels[i]);
 			
-			if(i==0) {
+			if(labelText[i].equals("Välj startdatum")) {
 				panel.add(p1);
-			} else {
+			} else if(labelText[i].equals("Välj slutdatum")) {
 				panel.add(p2);
+			
+			} else if(labelText[i].equals("Klockan:")) {
+				
+				kalenderSystem_spinner spinner = new kalenderSystem_spinner(0, 24, 12, 1, newFont);
+				panel.add(spinner);
+				
 			}
 		}
 		
@@ -558,8 +564,7 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 		addActivityFrame.setVisible(true);
 		aafOpen = true;
 		
-  }
-	
+	}
 	
 	
 	public boolean kalenderSystem_deleteActivity(int eventID) {
@@ -1216,6 +1221,7 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 		
 	}
 
+	
 	public void componentHidden(ComponentEvent arg) {
 		
 		
@@ -1473,5 +1479,8 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 		
 		
 	}
+
+
+
 
 }
