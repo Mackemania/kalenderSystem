@@ -13,6 +13,8 @@ import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -23,6 +25,7 @@ import java.util.Date;
 import java.util.Vector;
 
 import javax.swing.JButton;
+import javax.swing.JFormattedTextField;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -32,10 +35,11 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 
+import org.jdesktop.swingx.JXDatePicker;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-public class kalenderSystem_window extends JFrame implements ComponentListener, ActionListener, KeyListener{
+public class kalenderSystem_window extends JFrame implements ComponentListener, ActionListener, KeyListener, WindowListener{
 	
 	private JPanel breadCrumb;
 	private JPanel contentPane;
@@ -53,6 +57,9 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 	private boolean redopassword;
 	private boolean redoemail;
 	private JPanel menuPanel;
+	private JFrame addActivityFrame;
+	private boolean aafOpen = false;
+	private Font newFont = new Font("Arial", 0, 18);
 	
 	GridBagConstraints c = new GridBagConstraints();
 	private int x = 0;
@@ -67,7 +74,8 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 	
 	public kalenderSystem_window() {
 		super("Kalender");
-		super.setDefaultCloseOperation(EXIT_ON_CLOSE);
+		super.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+		super.addWindowListener(this);
 
 		super.setLocation(-1880, 100);
 		super.setPreferredSize(new Dimension(1200, 750));
@@ -131,7 +139,6 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 		
 		contentPane= new JPanel();
 		contentPane.setPreferredSize(new Dimension(345, 450));
-		kalenderSystem_login("Mackemania", "Admin");
 		
 		kalenderSystem_showLoginPane();
 		
@@ -199,7 +206,7 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 		menuPanel.setLayout(new GridBagLayout());
 		
 		c.fill = GridBagConstraints.HORIZONTAL;
-		String[] menuNames = {"Logga in", "Registrera dig"};
+		String[] menuNames = {"Logga in", "Registrera dig", "Skapa Aktivitet"};
 		JButton[] buttons = new JButton[menuNames.length];
 		
 		for(int i = 0; i<buttons.length; i++) {
@@ -218,7 +225,7 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 		}
 		
 		contentPane.removeAll();
-		contentPane.setLayout(new GridLayout(15,1));
+		contentPane.setLayout(new GridLayout(17,1));
 		currentFrame = "Login";
 		String[] loginText= {"", "", "KalenderSystem", "Logga In", "", "Användarnamn", "Lösenord"};
 		JLabel[] loginLabels= new JLabel[loginText.length];
@@ -476,14 +483,84 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 	
 	public void kalenderSystem_addActivityPane() {
 		
-		JFrame frame = new JFrame();
-		frame.setSize(500, 500);
-		frame.setLocation(-1890, 100);
-		frame.setPreferredSize(new Dimension(1200, 700));
+		if(aafOpen) {
+			addActivityFrame.setVisible(false);
+		}
+		addActivityFrame = new JFrame();
+		addActivityFrame.setLocation(-1790, 200);
+		addActivityFrame.setPreferredSize(new Dimension(500, 500));
+		addActivityFrame.setTitle("Skapa ny aktivitet");
+		addActivityFrame.setLayout(new BorderLayout());
 		
-		frame.setVisible(true);
+		JPanel panel = new JPanel();
+		panel.setLayout(new GridLayout(16, 1));
+		
+		JXDatePicker p1 = new JXDatePicker();
+		p1.setName("DatePicker");
+		p1.addActionListener(this);
+		Component[] comp = p1.getComponents();
+		Color dpc = comp[0].getForeground();
+		comp[0].setEnabled(false);
+
+		JFormattedTextField a = p1.getEditor();
+		a.setEnabled(false);
+		a.setDisabledTextColor(dpc);
+		a.setFont(newFont);
+		p1.setEditor(a);
+		
+		Component[] com =  p1.getComponents();
+		((JButton)com[1]).setIcon(null);
+		((JButton)com[1]).setText("Välj ett datum");
+		
+		
+		JXDatePicker p2 = new JXDatePicker();
+		p2.setName("DatePicker");
+		p2.addActionListener(this);
+		comp = p2.getComponents();
+		dpc = comp[0].getForeground();
+		comp[0].setEnabled(false);
+
+		a = p2.getEditor();
+		a.setEnabled(false);
+		a.setDisabledTextColor(dpc);
+		a.setFont(newFont);
+		p2.setEditor(a);
+		
+		com =  p2.getComponents();
+		((JButton)com[1]).setIcon(null);
+		((JButton)com[1]).setText("Välj ett datum");
+		
+
+		String[] labelText = {"Välj startdatum", "Välj slutdatum"};
+		JLabel[] labels = new JLabel[labelText.length];
+		
+		for(int i = 0; i<labels.length; i++) {
+			
+			labels[i] = new JLabel(labelText[i], SwingConstants.CENTER);
+			labels[i].setFont(newFont);
+			panel.add(labels[i]);
+			
+			if(i==0) {
+				panel.add(p1);
+			} else {
+				panel.add(p2);
+			}
+		}
+		
+		
+		JPanel fPane = new JPanel();
+		JPanel fPane2 = new JPanel();
+		
+		addActivityFrame.add(panel, BorderLayout.CENTER);
+		addActivityFrame.add(fPane, BorderLayout.WEST);
+		addActivityFrame.add(fPane2, BorderLayout.EAST);
+		addActivityFrame.pack();
+		addActivityFrame.setVisible(true);
+		aafOpen = true;
 		
   }
+	
+	
 	
 	public boolean kalenderSystem_deleteActivity(int eventID) {
 		
@@ -834,6 +911,13 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 	
 	public void kalenderSystem_logout() {
 		
+		String SQL = "DELETE FROM hash WHERE userID=?";
+		String types = "i";
+		Object[] values = {userID};
+		
+		kalenderSystem_sendData("kalenderSystem_sendData.php", SQL, types, values);
+		
+		kalenderSystem_showLoginPane();
 		
 		
 	}
@@ -1002,29 +1086,24 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 		String query = "?";
 		
 		//Skapar en fråga som servern kommer ta emot.
-		if(types.equals("Ã‚Â¤")) {
-			
-			query = query+"SQL="+SQL+"&types="+types;
-			
-		} else {
-			
-			//Formaterar om frågan till ett JSON object
-			JSONArray sendParams = new JSONArray(params);
-			//System.out.println(sendParams.toString());
-			
-			String[] index = new String[params.length];
-			
-			for(int i = 0; i<index.length; i++) {
-				
-				index[i] = ""+i;
-				//System.out.println(index[i]);
-			}
-			JSONArray JSONIndex = new JSONArray(index);
-			//System.out.println(JSONIndex.toString());
-			String values = sendParams.toJSONObject(JSONIndex).toString();
-			query = query+"SQL="+SQL+"&types="+types+"&values="+values;
-		}
 		
+		//Formaterar om frågan till ett JSON object
+		JSONArray sendParams = new JSONArray(params);
+		//System.out.println(sendParams.toString());
+		
+		String[] index = new String[params.length];
+		
+		for(int i = 0; i<index.length; i++) {
+			
+			index[i] = ""+i;
+			//System.out.println(index[i]);
+		}
+		JSONArray JSONIndex = new JSONArray(index);
+		//System.out.println(JSONIndex.toString());
+		String values = sendParams.toJSONObject(JSONIndex).toString();
+		query = query+"SQL="+SQL+"&types="+types+"&values="+values;
+	
+	
 		query = query+"&userID="+userID+"&hashkey="+hashkey;
 		str_url = str_url+query;
 		str_url = str_url.replace(" ", "%20");
@@ -1215,6 +1294,15 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 						kalenderSystem_showLoginPane();
 						break;
 					
+					case("menuLogga ut"):
+						
+						kalenderSystem_logout();
+						break;
+						
+					case("menuSkapa Aktivitet"):
+						
+						kalenderSystem_addActivityPane();
+						break;
 					default:
 						
 						break;
@@ -1331,6 +1419,57 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 	}
 	
 	public void keyTyped(KeyEvent arg) {
+		
+		
+	}
+
+
+	
+	
+	public void windowActivated(WindowEvent arg0) {
+		
+		
+	}
+
+
+	
+	public void windowClosed(WindowEvent arg0) {
+		
+		kalenderSystem_logout();
+		System.exit(0);
+	}
+
+
+	
+	public void windowClosing(WindowEvent arg0) {
+		
+		
+	}
+
+
+	
+	public void windowDeactivated(WindowEvent arg0) {
+		
+		
+	}
+
+
+	
+	public void windowDeiconified(WindowEvent arg0) {
+		
+		
+	}
+
+
+	
+	public void windowIconified(WindowEvent arg0) {
+		
+		
+	}
+
+
+	
+	public void windowOpened(WindowEvent arg0) {
 		
 		
 	}
