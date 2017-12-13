@@ -21,10 +21,13 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.Vector;
 
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JFormattedTextField;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -41,36 +44,38 @@ import org.json.JSONObject;
 
 public class kalenderSystem_window extends JFrame implements ComponentListener, ActionListener, KeyListener, WindowListener{
 	
+	private JFrame addActivityFrame;
 	private JPanel breadCrumb;
 	private JPanel contentPane;
 	private JPanel containerFiller1;
 	private JPanel containerFiller2;
-	JScrollPane contentScroll;
+	private JPanel menuPanel;
+	private JScrollPane contentScroll;
 	private JTextField usernameTextField;
-	private JPasswordField passwordTextField;
-	private JLabel info;
-	private int startWidth = 1200;
-	private JPasswordField passwordConfirm;
 	private JTextField emailTextField;
 	private JTextField firstNameTextField;
 	private JTextField lastNameTextField;
+	private JPasswordField passwordTextField;
+	private JPasswordField passwordConfirm;
+	private JLabel info;
+	private int startWidth = 1200;
 	private boolean redopassword;
 	private boolean redoemail;
-	private JPanel menuPanel;
-	private JFrame addActivityFrame;
 	private boolean aafOpen = false;
 	private Font newFont = new Font("Arial", 0, 18);
 	
 	GridBagConstraints c = new GridBagConstraints();
 	private int x = 0;
 	private int y = 0;
-	private String hashkey = "";
 	private int userID = -1;
+	private String hashkey = "";
 	private String username = "";
-	Thread thread;
+	private String currentFrame = "Login";
 	private JButton registerButton;
 	private DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-	private String currentFrame = "Login";
+	private Vector<String> calendars = new Vector<String>();
+	private Vector<Integer> calendarIDs = new Vector<Integer>();
+	
 	
 	public kalenderSystem_window() {
 		super("Kalender");
@@ -166,7 +171,7 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 		
 		
 		//kalenderSystem_register("Mackemania", "Admin", "admin@cals.se", "Test", "Test");
-		
+		kalenderSystem_login("Mackemania", "Admin");
 		
 		try {
 			Date start = df.parse("2018-06-04 07:50:00");
@@ -495,6 +500,9 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 		JPanel panel = new JPanel();
 		panel.setLayout(new GridLayout(16, 1));
 		
+		GregorianCalendar cal = (GregorianCalendar) Calendar.getInstance();
+		
+		
 		JXDatePicker p1 = new JXDatePicker();
 		p1.setName("DatePicker");
 		p1.addActionListener(this);
@@ -507,11 +515,11 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 		a.setDisabledTextColor(dpc);
 		a.setFont(newFont);
 		p1.setEditor(a);
+		p1.setDate(cal.getTime());
 		
 		Component[] com =  p1.getComponents();
 		((JButton)com[1]).setIcon(null);
 		((JButton)com[1]).setText("Välj ett datum");
-		
 		
 		JXDatePicker p2 = new JXDatePicker();
 		p2.setName("DatePicker");
@@ -525,14 +533,32 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 		a.setDisabledTextColor(dpc);
 		a.setFont(newFont);
 		p2.setEditor(a);
+		p2.setDate(cal.getTime());
 		
 		com =  p2.getComponents();
 		((JButton)com[1]).setIcon(null);
 		((JButton)com[1]).setText("Välj ett datum");
-		
 
-		String[] labelText = {"Välj startdatum", "Klockan:", "Välj slutdatum", "Klockan:"};
+		String[] labelText = {" ", "Aktivitetstitel", "Välj startdatum", "Klockan:", "Välj slutdatum", "Klockan:", ""};
 		JLabel[] labels = new JLabel[labelText.length];
+		kalenderSystem_spinner spinner = new kalenderSystem_spinner(0, 24, 12, 1, newFont, JTextField.RIGHT);
+		
+		Object[][] matrix = kalenderSystem_getCalendars();
+		
+		calendars = new Vector<String>();
+		calendarIDs = new Vector<Integer>();
+		calendars.add("Välj en kalender...");
+		calendarIDs.add(0);
+		
+		for(int i = 0; i<matrix.length; i++) {
+		
+			calendars.add((String) matrix[i][1]);
+			calendarIDs.add((int) matrix[i][0]);
+			//System.out.println((String) matrix[i][1]);
+		
+		}
+		
+		JComboBox calendarSelect = new JComboBox(calendars);
 		
 		for(int i = 0; i<labels.length; i++) {
 			
@@ -540,22 +566,50 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 			labels[i].setFont(newFont);
 			panel.add(labels[i]);
 			
-			if(labelText[i].equals("Välj startdatum")) {
+			if(labelText[i].equals(" ")) {
+				
+				panel.add(calendarSelect);
+				
+			} else if(labelText[i].equals("Aktivitetstitel")) {
+				
+				JTextField textField = new JTextField();
+				textField.setFont(newFont);
+				panel.add(textField);
+				
+			} else if(labelText[i].equals("Välj startdatum")) {
+				
 				panel.add(p1);
+				
 			} else if(labelText[i].equals("Välj slutdatum")) {
+				
 				panel.add(p2);
-			
+				
 			} else if(labelText[i].equals("Klockan:")) {
 				
-				kalenderSystem_spinner spinner = new kalenderSystem_spinner(0, 24, 12, 1, newFont);
-				panel.add(spinner);
+				JPanel clockPanel = new JPanel();
+				clockPanel.setLayout(new GridLayout(1,2));
+				spinner = new kalenderSystem_spinner(0, 24, 12, 1, newFont, JTextField.RIGHT);
+				clockPanel.add(spinner);
+				spinner = new kalenderSystem_spinner(0, 59, 00, 1, newFont, JTextField.LEFT);
+				clockPanel.add(spinner);
+				panel.add(clockPanel);
 				
 			}
 		}
 		
+		JButton button = new JButton("Skapa aktivitet");
+		button.setActionCommand("Skapa aktivitet");
+		button.addActionListener(this);
+		panel.add(button);
+		
+		info.setText("");
+		panel.add(info);
 		
 		JPanel fPane = new JPanel();
+		fPane.setPreferredSize(new Dimension(80, 20));
 		JPanel fPane2 = new JPanel();
+		fPane2.setPreferredSize(new Dimension(80, 20));
+		panel.setPreferredSize(new Dimension(300, 400));
 		
 		addActivityFrame.add(panel, BorderLayout.CENTER);
 		addActivityFrame.add(fPane, BorderLayout.WEST);
@@ -644,7 +698,7 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 	 * Outputs.
 	 * 		boolean, returnerar true om aktiviteten lades till, annars returnerar den false
 	 */
-	public boolean kalenderSystem_addActivity(int calendarID, String eventName, Date startTime, Date endTime) {
+	public boolean kalenderSystem_createActivity(int calendarID, String eventName, Date startTime, Date endTime) {
 		
 		if(startTime.compareTo(endTime)<0) {
 		
@@ -740,7 +794,7 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 					return false;
 				
 				} else {
-				
+					
 				}
 				
 			}
@@ -755,10 +809,60 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 			params[4] = df.format(endTime);
 			
 			kalenderSystem_sendData("kalenderSystem_sendData.php", SQL, types, params);
-			
+			return true;
 		
 		}
+		
 		return false;
+	}
+	
+	
+	public Object[][] kalenderSystem_getCalendars() {
+		
+
+
+		String SQL = "SELECT calendarID FROM acceptedcalendars WHERE userID=? AND calendarID != ?";
+		String types = "ii";
+		Object[] params = {userID, 0};
+		
+		Object[][] matrix = kalenderSystem_getData("kalenderSystem_getData.php", SQL, types, params);
+		
+		Vector<Integer> eventIDs = new Vector<Integer>();
+		
+		for(int i= 0; i<matrix.length; i++) {
+			
+			eventIDs.add((int)matrix[i][0]);
+			
+		}
+		
+		SQL = "SELECT calendarID FROM calendars WHERE creatorID=? AND calendarID != ?";
+		types = "ii";
+		params[0] = userID;
+		params[1] = 0;
+		matrix = kalenderSystem_getData("kalenderSystem_getData.php", SQL, types, params);
+		
+		for(int i= 0; i<matrix.length; i++) {
+			
+			eventIDs.add((int)matrix[i][0]);
+			
+		}
+		
+		for(int i = 0; i<eventIDs.size(); i++) {
+			
+			int eventID = eventIDs.get(i);
+			
+			SQL = "SELECT calendarID, name, creatorID FROM calendars WHERE calendarID=?";
+			types = "i";
+			params = new Object[1];
+			params[0] = eventID;
+			
+			Object[][]temp = kalenderSystem_getData("kalenderSystem_getData.php", SQL, types, params);
+			matrix[i] = temp[0];
+			
+		}
+		
+		return matrix;
+		
 	}
 	
 	
@@ -1286,13 +1390,20 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 						
 					case("Registrera dig"):
 						
-						String anvandarnamn= usernameTextField.getText();
-						String losenord= passwordTextField.getText();
-						String email= emailTextField.getText();
-						String fnamn= firstNameTextField.getText();
-						String enamn= lastNameTextField.getText();
+						String username= usernameTextField.getText();
 						
-						kalenderSystem_register(anvandarnamn, losenord, email, fnamn, enamn);
+						char[] chr_password =  passwordTextField.getPassword();
+						String password= "";
+						for(int i= 0; i<chr_password.length; i++) {
+							password = password+chr_password[i];
+						}
+						
+						
+						String email= emailTextField.getText();
+						String fname= firstNameTextField.getText();
+						String lname= lastNameTextField.getText();
+						
+						kalenderSystem_register(username, password, email, fname, lname);
 						break;
 						
 					case("menuLogga in"):
@@ -1309,6 +1420,77 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 						
 						kalenderSystem_addActivityPane();
 						break;
+						
+					case("Skapa aktivitet"):
+						
+						Component[] comp = ((JPanel)((JButton)arg.getSource()).getParent()).getComponents();
+						
+						Vector<Integer> time = new Vector<Integer>();
+						Vector<Date> dates = new Vector<Date>();
+						String title = "";
+						String calendar = "";
+						for(int i = 0; i<comp.length; i++) {
+							String className = comp[i].getClass().getSimpleName();
+							//System.out.println(className);
+							
+							if(className.equals("JComboBox")) {
+								
+								calendar = (String)((JComboBox)comp[i]).getSelectedItem();
+								
+							} else if(className.equals("JTextField")) {
+								
+								title = ((JTextField)comp[i]).getText();
+								
+							} else if(className.equals("JXDatePicker")) {
+								
+								dates.add(((JXDatePicker)comp[i]).getDate());
+								
+							} else if(className.equals("JPanel")) {
+								
+								Component[] temp = ((JPanel)comp[i]).getComponents();
+								
+								for(int j = 0; j<temp.length; j++) {
+									
+									time.add((int)((kalenderSystem_spinner)temp[j]).getModel().getValue());
+									
+								}
+								
+							}
+						}
+						GregorianCalendar cal = new GregorianCalendar();
+						cal.setTime(dates.get(0));
+						cal.set(Calendar.HOUR_OF_DAY, time.get(0));
+						cal.set(Calendar.MINUTE, time.get(1));
+						Date startDate = cal.getTime();
+						
+						cal.setTime(dates.get(1));
+						cal.set(Calendar.HOUR_OF_DAY, time.get(2));
+						cal.set(Calendar.MINUTE, time.get(3));
+						Date endDate = cal.getTime();
+						
+						
+						int calendarID = calendarIDs.get(calendars.indexOf(calendar));
+						if(calendarID >0) {
+							boolean temp = kalenderSystem_createActivity(calendarID, title, startDate, endDate);
+							System.out.println(temp);
+							
+							if(temp) {
+								
+								info.setText("");
+								addActivityFrame.setVisible(false);
+								
+							} else {
+								
+								info.setText("Du är redan bokad då!");
+							
+							}
+						
+						} else {
+							info.setText("Vänligen välj en kalender!");
+						}
+						
+						break;
+					
 					default:
 						
 						break;

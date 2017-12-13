@@ -5,6 +5,9 @@ import java.awt.Component;
 import java.awt.Font;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
+import java.text.DateFormatSymbols;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 
 import javax.swing.JComponent;
 import javax.swing.JSpinner;
@@ -20,8 +23,8 @@ public class kalenderSystem_spinner extends JSpinner implements FocusListener{
 	private int stepSize;
 	
 	
-	public kalenderSystem_spinner(int min, int max, int value, int stepSize, Font newFont) {
-		
+	public kalenderSystem_spinner(int min, int max, int value, int stepSize, Font newFont, int alignment) {
+		//super();
 		this.min = min;
 		this.max = max;
 		this.value = value;
@@ -33,6 +36,7 @@ public class kalenderSystem_spinner extends JSpinner implements FocusListener{
 		model.setMaximum(max);
 		model.setValue(value);
 		model.setStepSize(stepSize);
+		
 		
 		super.setModel(model);
 		super.setFont(newFont);
@@ -50,14 +54,34 @@ public class kalenderSystem_spinner extends JSpinner implements FocusListener{
 		}
 		
 		JComponent editor = super.getEditor();
-		JSpinner.DefaultEditor e = (JSpinner.DefaultEditor) editor;
-		e.getTextField().setHorizontalAlignment(JTextField.LEFT);
+		JSpinner.NumberEditor e = (JSpinner.NumberEditor) editor;
+		
+		e.getTextField().setHorizontalAlignment(alignment);
+		if(value<10) {
+			e.getTextField().setText("0"+value);
+		}
+		DecimalFormat format = e.getFormat();
+		DecimalFormatSymbols s = new DecimalFormatSymbols();
+		s.setZeroDigit('0');
+		format.setDecimalFormatSymbols(s);
+		format.applyLocalizedPattern("00");
+		
+		super.setEditor(e);
 		
 	}
 	
 	public kalenderSystem_spinner() {
 		
 		
+	}
+	
+	public String getText() {
+		
+		JComponent editor = super.getEditor();
+		JSpinner.NumberEditor e = (JSpinner.NumberEditor) editor;
+		String text = e.getTextField().getText();
+		
+		return text;
 	}
 
 	
