@@ -26,7 +26,6 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Vector;
 
-import javax.swing.ComboBoxEditor;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFormattedTextField;
@@ -38,6 +37,9 @@ import javax.swing.JPasswordField;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
+import javax.swing.border.Border;
 
 import org.jdesktop.swingx.JXDatePicker;
 import org.json.JSONArray;
@@ -90,7 +92,6 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 
 		super.setLocation(-1220, 100);
 		super.setPreferredSize(new Dimension(1200, 750));
-
 		super.setLayout(new BorderLayout());
 		super.addComponentListener(this);
 		
@@ -665,20 +666,11 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 		containerFiller2.setPreferredSize(new Dimension(initialXSize, 0));
 		
 		JPanel cPanel = new JPanel();
-		cPanel.setLayout(new GridLayout(7, 7));
-		JPanel fPanel = new JPanel();
-		fPanel.setPreferredSize(new Dimension(400, initialXSize));
 		
-		String[] dagar = {"Måndag", "Tisdag", "Onsdag", "Torsdag", "Fredag", "Lördag", "Söndag"};
-		for(int i = 0; i<dagar.length; i++) {
-			cPanel.add(new JLabel(dagar[i]));
-		}
 		
-		GregorianCalendar cal = new GregorianCalendar();
-		cal.set(int_year, int_month, 1, 0, 0, 0);
 		int day = 1;
 		int maxDays = 0;
-		System.out.println(int_month);
+		//System.out.println(int_month);
 		if((int_month == 0 || int_month ==  2 || int_month ==  4 || int_month ==  6 || int_month ==  7 || int_month ==  9 || int_month ==  11) && int_year>0) {
 			
 			maxDays = 31;
@@ -697,23 +689,82 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 			
 		}
 		
-		System.out.println(maxDays);
-		
-		for(int i = 0; i<6; i++) {
+		GregorianCalendar cal = new GregorianCalendar();
+		cal.set(int_year, int_month, 1, 0, 0, 0);
+		int start = cal.get(Calendar.WEEK_OF_YEAR);
+		cal.set(Calendar.DAY_OF_MONTH, maxDays);
+		int end = cal.get(Calendar.WEEK_OF_YEAR);
+		cal.set(Calendar.DAY_OF_MONTH, 1);
+		//System.out.println("End: "+end);
+		//System.out.println("Start: "+start);
+		int weeks = 0;
+		if(start == 52) {
+			start = 0;
 			
+			weeks = end-(start-1);
+		} else {
+			weeks = (end-(start-1));
+		}
+		
+		//System.out.println("Weeks: "+(end-(start-1)));
+		cPanel.setLayout(new GridLayout(weeks+1, 7));
+		JPanel fPanel = new JPanel();
+		fPanel.setPreferredSize(new Dimension(400, initialXSize));
+		
+		String[] dagar = {"Måndag", "Tisdag", "Onsdag", "Torsdag", "Fredag", "Lördag", "Söndag"};
+		for(int i = 0; i<dagar.length; i++) {
+			JLabel dayLabel = new JLabel(dagar[i], JTextField.CENTER);
+			cPanel.add(dayLabel);
+		}
+		
+		//System.out.println("Max: "+maxDays);
+		
+		JPanel weekPanel = new JPanel();
+		weekPanel.setLayout(new GridLayout(weeks+1, 1));
+		weekPanel.add(new JLabel(""));
+		for(int i = 0; i<(weeks); i++) {
+			int int_week = (cal.get(Calendar.WEEK_OF_YEAR)+i);
+			if(int_week>52) {
+				int_week%=52;
+			}
+			JLabel week = new JLabel("v. "+int_week);
+			weekPanel.add(week);
 			for(int j = 0; j<7; j++) {
-				
-				if(day<=maxDays) {
-					cPanel.add(new JButton(""+day));
-					day++;
+				int temp = (cal.get(Calendar.DAY_OF_WEEK)-2);
+				if(temp < 0) {
+					temp = 6;
+				}
+				if(i == 0 && j<temp) {
+					
+					JButton tempButton = new JButton();
+					tempButton.setEnabled(false);
+					cPanel.add(tempButton);
+					
 				} else {
-					cPanel.add(new JButton("h"));
+				
+					if(day<=maxDays) {
+						
+						JButton dayButton =  new JButton(""+day);
+						dayButton.addActionListener(this);
+						dayButton.setActionCommand("showActivitiesOfDay");
+						dayButton.setName(int_year+"-"+(int_month+1)+"-"+day+" 00:00:00");
+						cPanel.add(dayButton);
+						day++;
+						
+					} else {
+						
+						JButton tempButton = new JButton();
+						tempButton.setEnabled(false);
+						cPanel.add(tempButton);
+						
+					}
 				}
 			}
 			
 		}
 		
 		contentPane.add(cPanel, BorderLayout.CENTER);
+		contentPane.add(weekPanel, BorderLayout.WEST);
 		contentPane.add(fPanel, BorderLayout.SOUTH);
 		
 		contentPane.repaint();
@@ -740,6 +791,11 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 	 * 		-
 	 * Outputs.
 	 * 		Object[][] matrix, Innehåller all information om eventen i en kalender.
+	 * 		Object[][0] eventID
+	 * 		Object[][1] name
+	 * 		Object[][2] StartDate
+	 * 		Object[][3] endDate
+	 * 		object[][4] creatorID
 	 */
 	public Object[][] kalenderSystem_getActivities() {
 
@@ -773,7 +829,7 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 			
 			int eventID = eventIDs.get(i);
 			
-			SQL = "SELECT name, startTime, endTime, creatorID FROM events WHERE eventID=?";
+			SQL = "SELECT eventID, name, startTime, endTime, creatorID FROM events WHERE eventID=?";
 			types = "i";
 			params = new Object[1];
 			params[0] = eventID;
@@ -1594,7 +1650,13 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 							info.setText("Starttiden måste vara före sluttiden");
 						}
 						break;
-					
+					case("showActivitiesOfDay"):
+						String name = button.getName();
+						
+						Object[][] matrix = kalenderSystem_getActivities();
+						
+						
+						break;
 					default:
 						
 						break;
