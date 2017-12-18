@@ -695,16 +695,22 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 		cal.set(Calendar.DAY_OF_MONTH, maxDays);
 		int end = cal.get(Calendar.WEEK_OF_YEAR);
 		cal.set(Calendar.DAY_OF_MONTH, 1);
-		//System.out.println("End: "+end);
-		//System.out.println("Start: "+start);
+		System.out.println("End: "+end);
+		System.out.println("Start: "+start);
 		int weeks = 0;
 		if(start == 52) {
 			start = 0;
 			
 			weeks = end-(start-1);
+		} else if(end == 1) {
+			end = 53;
+			weeks = end-(start-1);
 		} else {
 			weeks = (end-(start-1));
 		}
+		
+		
+		System.out.println(weeks);
 		
 		//System.out.println("Weeks: "+(end-(start-1)));
 		cPanel.setLayout(new GridLayout(weeks+1, 7));
