@@ -4,5 +4,6 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="json-20171018.jar"/>
 	<classpathentry kind="lib" path="swingx-1.6.jar"/>
+	<classpathentry kind="lib" path="C:/Users/tobias.gustafsson3/git/kalenderSystem/swingx-1.6.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
