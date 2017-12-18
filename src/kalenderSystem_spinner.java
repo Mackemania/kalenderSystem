@@ -14,7 +14,7 @@ import javax.swing.JSpinner;
 import javax.swing.JTextField;
 import javax.swing.SpinnerNumberModel;
 
-public class kalenderSystem_spinner extends JSpinner implements FocusListener{
+public class kalenderSystem_spinner extends JSpinner {
 	
 	private Font newFont;
 	private int min;
@@ -82,17 +82,6 @@ public class kalenderSystem_spinner extends JSpinner implements FocusListener{
 		String text = e.getTextField().getText();
 		
 		return text;
-	}
-
-	
-	public void focusGained(FocusEvent arg) {
-		
-		JComponent editor = super.getEditor();
-		JSpinner.DefaultEditor e = (JSpinner.DefaultEditor) editor;
-		e.getTextField().setHorizontalAlignment(JTextField.LEFT);
-		e.getTextField().setCaretPosition(e.getTextField().getText().length());
-		System.out.println("HEJ");
-		
 	}
 
 	
