@@ -77,7 +77,7 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 		super.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		super.addWindowListener(this);
 
-		super.setLocation(-1880, 100);
+		super.setLocation(100, 100);
 		super.setPreferredSize(new Dimension(1200, 750));
 
 		super.setLayout(new BorderLayout());
