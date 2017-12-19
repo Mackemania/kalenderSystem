@@ -90,7 +90,7 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 		super("Kalender");
 		super.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		super.addWindowListener(this);
-		super.setLocation(100, 100);
+		super.setLocation(2080, 100);
 		super.setPreferredSize(new Dimension(1200, 750));
 		super.setLayout(new BorderLayout());
 		super.addComponentListener(this);
@@ -1852,10 +1852,9 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 						
 					case("showActivitiesOfDay"):
 						String name = button.getName();
-						
 						Object[][] matrix = kalenderSystem_getActivities();
 						
-						
+						System.out.println(name);
 						break;
 						
 					case("menuSkapa Kalender"):
