@@ -89,7 +89,7 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 		super("Kalender");
 		super.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		super.addWindowListener(this);
-		super.setLocation(100, 100);
+		super.setLocation(2080, 100);
 		super.setPreferredSize(new Dimension(1200, 750));
 		super.setLayout(new BorderLayout());
 		super.addComponentListener(this);
@@ -505,7 +505,7 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 			addActivityFrame.setVisible(false);
 		}
 		addActivityFrame = new JFrame();
-		addActivityFrame.setLocation(-900, 200);
+		addActivityFrame.setLocation(2280, 200);
 		addActivityFrame.setPreferredSize(new Dimension(500, 500));
 		addActivityFrame.setTitle("Skapa ny aktivitet");
 		addActivityFrame.setLayout(new BorderLayout());
@@ -1651,10 +1651,9 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 						break;
 					case("showActivitiesOfDay"):
 						String name = button.getName();
-						
 						Object[][] matrix = kalenderSystem_getActivities();
 						
-						
+						System.out.println(name);
 						break;
 					default:
 						
