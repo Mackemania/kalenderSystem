@@ -98,7 +98,7 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 		super("Kalender");
 		super.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		super.addWindowListener(this);
-		super.setLocation(2080, 100);
+		super.setLocation(100, 100);
 		super.setPreferredSize(new Dimension(1200, 750));
 		super.setLayout(new BorderLayout());
 		super.addComponentListener(this);
@@ -841,18 +841,34 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 		//System.out.println("End: "+end);
 		//System.out.println("Start: "+start);
 		int weeks = 0;
-		if(start == 52) {
+		System.out.println(start+" "+end);
+		if(start >= 52) {
 			start = 0;
 			
 			weeks = end-(start-1);
+			
 		} else if(end == 1) {
+			
 			end = 53;
 			weeks = end-(start-1);
+			end = 54;
+			
 		} else {
+			
 			weeks = (end-(start-1));
+			
 		}
-		
-		
+		System.out.println(weeks);
+		GregorianCalendar ca = new GregorianCalendar();
+		ca = (GregorianCalendar) Calendar.getInstance();
+		ca.set(Calendar.YEAR, 2015);
+		ca.set(Calendar.DAY_OF_MONTH, 31);
+		ca.set(Calendar.MONTH, 11);
+		int weeksInYear = ca.get(Calendar.WEEK_OF_YEAR);
+		if(end == 54) {
+			weeksInYear = 52;
+		}
+		System.out.println(weeksInYear);
 		//System.out.println(weeks);
 		
 		//System.out.println("Weeks: "+(end-(start-1)));
@@ -875,8 +891,8 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 		
 		for(int i = 0; i<(weeks); i++) {
 			int int_week = (cal.get(Calendar.WEEK_OF_YEAR)+i);
-			if(int_week>52) {
-				int_week%=52;
+			if(int_week>weeksInYear) {
+				int_week%=weeksInYear;
 			}
 			JLabel week = new JLabel("v. "+int_week);
 			week.setFont(f);
@@ -932,12 +948,44 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 		contentPane.removeAll();
 		breadCrumb.removeAll();
 		Vector<Integer> years = new Vector<Integer>();
-		
 		for(int i = 0; i<=(Calendar.getInstance().get(Calendar.YEAR)-1970)+100; i++) {
 			
 			years.add((1970+i));
 			
 		}
+		
+		year = new JComboBox<Integer>(years);
+		year.setFont(newFont);
+		year.setSelectedItem(years.get(int_year-1970));
+		year.addActionListener(this);
+		year.setName("year");
+		breadCrumb.add(year);
+		
+		
+		GregorianCalendar cal = (GregorianCalendar) Calendar.getInstance();
+		cal.set(Calendar.DAY_OF_MONTH, 31);
+		cal.set(Calendar.YEAR, int_year);
+		cal.set(Calendar.MONTH, 11);
+		int end = cal.get(Calendar.WEEK_OF_YEAR);
+		
+		if(end == 1) {
+			end = 52;
+		}
+		
+		Vector<Integer> weeks = new Vector<Integer>();
+		
+		for(int i = 1; i<=end; i++) {
+			
+			weeks.add(i);
+			
+		}
+		
+		JComboBox week = new JComboBox<Integer>(weeks);
+		week.setFont(newFont);
+		week.setSelectedItem(int_week);
+		week.addActionListener(this);
+		week.setName("week");
+		breadCrumb.add(week);
 		
 		contentPane.setLayout(new BorderLayout());
 		initialXSize = 50;
@@ -945,7 +993,20 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 		containerFiller2.setPreferredSize(new Dimension(0, 0));
 		
 		JPanel cPanel = new JPanel();
-		cPanel.setLayout(new GridLayout());
+		cPanel.setLayout(new GridLayout(2, 7));
+		
+		Object[][] matrix = kalenderSystem_getActivities();
+		
+		cal = (GregorianCalendar) Calendar.getInstance();
+		cal.set(Calendar.WEEK_OF_YEAR, int_week);
+		cal.get(Calendar.DAY_OF_WEEK);
+		
+		for(int i = 0; i<matrix.length; i++) {
+			
+			
+		}
+		
+		
 		
 		String[] dagar = {"Måndag", "Tisdag", "Onsdag", "Torsdag", "Fredag", "Lördag", "Söndag"};
 		for(int i = 0; i<dagar.length; i++) {
@@ -956,12 +1017,21 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 		
 		}
 		
+		JPanel[] dayPanel = new JPanel[7];
+		
+		for(int i = 0; i<dayPanel.length; i++) {
+			
+			dayPanel[i] = new JPanel();
+			cPanel.add(dayPanel[i]);
+		}
+		
 		//System.out.println("Max: "+maxDays);
 		Font f = new Font("Arial", Font.BOLD, 13);
 		
 		
 		JScrollPane dayViewScroll = new JScrollPane(cPanel);
 		
+		contentPane.add(dayViewScroll);
 		contentPane.repaint();
 		pack();
 		super.repaint();
@@ -1944,14 +2014,20 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 					
 					case("menuDagsvy"):
 						
-						kalenderSystem_showDayView(0, 0);
+						kalenderSystem_showDayView(Calendar.getInstance().get(Calendar.YEAR), Calendar.getInstance().get(Calendar.WEEK_OF_YEAR));
 						break;
 						
+
+					case("menuMånadsvy"):
+						
+						kalenderSystem_showMonthView(Calendar.getInstance().get(Calendar.YEAR), Calendar.getInstance().get(Calendar.MONTH));
+						break;
+					
 					case("menuInställningar"):
 						
 						kalenderSystem_showActivityPane();
 						break;
-						
+
 					default:
 						
 						break;
