@@ -46,6 +46,7 @@ import org.json.JSONObject;
 public class kalenderSystem_window extends JFrame implements ComponentListener, ActionListener, KeyListener, WindowListener{
 	
 	private JFrame addActivityFrame;
+	private JFrame showActivityFrame;
 	private JFrame addCalendarFrame;
 	private JFrame infoBoard;
 	private JPanel breadCrumb;
@@ -69,8 +70,15 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 	private boolean redopassword;
 	private boolean redoemail;
 	private boolean aafOpen = false;
+	private boolean safOpen = false;
 	private boolean acfOpen = false;
 	private Font newFont = new Font("Arial", 0, 18);
+	
+	private JLabel activityName;
+	private JLabel activityCreator;
+	private JLabel activityCalendar;
+	private JLabel activityStart;
+	private JLabel activityEnd;
 	
 	private GridBagConstraints c = new GridBagConstraints();
 	private int x = 0;
@@ -90,7 +98,7 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 		super("Kalender");
 		super.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		super.addWindowListener(this);
-		super.setLocation(-1220, 100);
+		super.setLocation(100, 100);
 		super.setPreferredSize(new Dimension(1200, 750));
 		super.setLayout(new BorderLayout());
 		super.addComponentListener(this);
@@ -668,6 +676,46 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 		addActivityFrame.pack();
 		addActivityFrame.setVisible(true);
 		aafOpen = true;
+		
+	}
+	
+	public void kalenderSystem_showActivityPane() {
+		
+		if(safOpen) {
+			showActivityFrame.setVisible(false);
+		}
+		showActivityFrame = new JFrame();
+		Point p = super.getLocation();
+		p.setLocation((int) p.getX()+50, (int)p.getY()+50);
+		showActivityFrame.setLocation(p);
+		showActivityFrame.setPreferredSize(new Dimension(500, 500));
+		showActivityFrame.setTitle("Skapa ny aktivitet");
+		showActivityFrame.setLayout(new BorderLayout());
+		
+		JPanel panel = new JPanel();
+		panel.setLayout(new GridLayout(16, 1));
+		
+		JPanel fPane = new JPanel();
+		fPane.setPreferredSize(new Dimension(80, 20));
+		JPanel fPane2 = new JPanel();
+		fPane2.setPreferredSize(new Dimension(80, 20));
+		panel.setPreferredSize(new Dimension(300, 400));
+		
+		showActivityFrame.add(panel, BorderLayout.CENTER);
+		showActivityFrame.add(fPane, BorderLayout.WEST);
+		showActivityFrame.add(fPane2, BorderLayout.EAST);
+		showActivityFrame.pack();
+		showActivityFrame.setVisible(true);
+		safOpen = true;
+		
+		activityName = new JLabel();
+		activityCreator = new JLabel();
+		activityCalendar = new JLabel();
+		activityStart = new JLabel();
+		activityEnd = new JLabel();
+		
+		matris[]eventAttributes = kalenderSystem_getActivities();
+		
 		
 	}
 	
@@ -1969,11 +2017,17 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 						kalenderSystem_showDayView(Calendar.getInstance().get(Calendar.YEAR), Calendar.getInstance().get(Calendar.WEEK_OF_YEAR));
 						break;
 						
+
 					case("menuMånadsvy"):
 						
 						kalenderSystem_showMonthView(Calendar.getInstance().get(Calendar.YEAR), Calendar.getInstance().get(Calendar.MONTH));
 						break;
 					
+					case("menuInställningar"):
+						
+						kalenderSystem_showActivityPane();
+						break;
+
 					default:
 						
 						break;
@@ -1999,6 +2053,7 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 				
 				
 				break;
+				
 		default:
 			System.out.println(arg);
 			break;
