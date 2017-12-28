@@ -187,7 +187,7 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 		
 		
 		//kalenderSystem_register("Mackemania", "Admin", "admin@cals.se", "Test", "Test");
-		kalenderSystem_login("Mackemania", "Admin");
+		//kalenderSystem_login("Mackemania", "Admin");
 		
 		try {
 			Date start = df.parse("2018-06-04 07:50:00");
@@ -846,6 +846,7 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 			start = 0;
 			
 			weeks = end-(start-1);
+			end = 54;
 			
 		} else if(end == 1) {
 			
