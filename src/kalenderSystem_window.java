@@ -431,7 +431,6 @@ public class kalenderSystem_window extends JFrame
 		registerButton.setEnabled(false);
 
 		Font newFont = new Font("Arial", 0, 20);
-		info = new JLabel("");
 		info.setFont(newFont);
 		contentPane.add(info);
 
@@ -522,6 +521,62 @@ public class kalenderSystem_window extends JFrame
 			JButton decline = new JButton("Avböj");
 			decline.addActionListener(this);
 			decline.setActionCommand("declineEvent" + matrix[i][0]);
+			decline.setBackground(new Color(255, 175, 175));
+
+			activityPanel.add(decline);
+
+			cPanel.add(activityPanel);
+		}
+		
+		SQL = "SELECT calendarInviteID FROM calendarinvites WHERE userID = ? AND declined = ?";
+		types = "ii";
+		params = new Object[] {userID, 0 };
+
+		matrix = kalenderSystem_getData("kalenderSystem_getData.php", SQL, types, params);
+
+		Vector<Integer> calendarID = new Vector<Integer>();
+
+		for (int i = 0; i < matrix.length; i++) {
+
+			calendarID.add((int) matrix[i][0]);
+
+		}
+
+		matrix = new Object[calendarID.size()][];
+
+		for (int i = 0; i < calendarID.size(); i++) {
+
+			SQL = "SELECT calendarID, creatorID, name FROM calendars WHERE calendarID = ?";
+			types = "i";
+			params = new Object[] {calendarID.get(i)};
+
+			Object[][] temp = kalenderSystem_getData("kalenderSystem_getData.php", SQL, types, params);
+			matrix[i] = temp[0];
+
+		}
+
+		for (int i = 0; i < matrix.length; i++) {
+
+			JPanel activityPanel = new JPanel();
+			activityPanel.setLayout(new GridLayout(1, 5));
+
+			JButton event = new JButton((String) matrix[i][2]);
+			event.addActionListener(this);
+			event.setActionCommand("checkCalendar" + matrix[i][0]);
+			activityPanel.add(event);
+
+			activityPanel.add(new JLabel(""));
+
+			JButton accept = new JButton("Acceptera");
+			accept.addActionListener(this);
+			accept.setActionCommand("acceptCalendar" + matrix[i][0]);
+			accept.setBackground(new Color(175, 225, 175));
+
+			activityPanel.add(accept);
+
+			JButton decline = new JButton("Avböj");
+			decline.addActionListener(this);
+			decline.setActionCommand("declineCalendar" + matrix[i][0]);
 			decline.setBackground(new Color(255, 175, 175));
 
 			activityPanel.add(decline);
@@ -1213,7 +1268,7 @@ public class kalenderSystem_window extends JFrame
 	public void kalenderSystem_showInfoBoard(String message) {
 
 		infoBoard = new JFrame();
-		infoBoard.setPreferredSize(new Dimension(500, 250));
+		//infoBoard.setPreferredSize(new Dimension(500, 250));
 		infoBoard.setLocation((int) super.getLocation().getX() + 50, (int) super.getLocation().getY() + 50);
 		infoBoard.setLayout(new BorderLayout());
 		infoBoard.setName("infoBoard");
@@ -1225,9 +1280,16 @@ public class kalenderSystem_window extends JFrame
 		panel.setLayout(new GridLayout(5, 1));
 
 		panel.add(new JLabel(""));
+		
+		JPanel infoPanel = new JPanel();
 		info = new JLabel("", JLabel.CENTER);
+		message = message.replaceAll("\n", "<br />");
 		info.setText("<html><p>" + message + "</p></html>");
 		info.setFont(newFont);
+		
+		infoPanel.add(info);
+		JScrollPane scroll = new JScrollPane(infoPanel);
+		scroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 		panel.add(info);
 
 		JButton button = new JButton();
@@ -1526,14 +1588,35 @@ public class kalenderSystem_window extends JFrame
 	 * endDate object[][4] creatorID
 	 */
 	public Object[][] kalenderSystem_getActivities(Calendar cal) {
-
-		String SQL = "SELECT eventID FROM acceptedevents WHERE userID=?";
+		
+		String SQL = "SELECT calendarID FROM acceptedcalendars WHERE userID=?";
 		String types = "i";
 		Object[] params = { userID };
 
-		Object[][] matrix = kalenderSystem_getData("kalenderSystem_getData.php", SQL, types, params);
+		Object[][] temp = kalenderSystem_getData("kalenderSystem_getData.php", SQL, types, params);
 
 		Vector<Integer> eventIDs = new Vector<Integer>();
+
+		for (int i = 0; i < temp.length; i++) {
+
+			SQL = "SELECT eventID FROM events WHERE calendarID = ?";
+			types = "i";
+			params = new Object[] {temp[i][0]};
+			
+			Object[][] matrix = kalenderSystem_getData("kalenderSystem_getData.php", SQL, types, params);
+			
+			for(int j = 0; j<matrix.length; j++) {
+				
+				eventIDs.add((int) matrix[j][0]);
+			}
+
+		}
+
+		SQL = "SELECT eventID FROM acceptedevents WHERE userID=?";
+		types = "i";
+		params = new Object[] { userID };
+
+		Object[][] matrix = kalenderSystem_getData("kalenderSystem_getData.php", SQL, types, params);
 
 		for (int i = 0; i < matrix.length; i++) {
 
@@ -1582,7 +1665,7 @@ public class kalenderSystem_window extends JFrame
 			params[1] = str_startDate;
 			params[2] = str_endDate;
 
-			Object[][] temp = kalenderSystem_getData("kalenderSystem_getData.php", SQL, types, params);
+			temp = kalenderSystem_getData("kalenderSystem_getData.php", SQL, types, params);
 
 			if (temp.length > 0) {
 				events.add(temp[0]);
@@ -1683,18 +1766,17 @@ public class kalenderSystem_window extends JFrame
 					// System.out.println(endTime.compareTo((Date)matrix[i][2]));
 
 					if (startTime.compareTo((Date) matrix[i][1]) >= 0 && startTime.compareTo((Date) matrix[i][2]) < 0) {
-
-						JOptionPane.showMessageDialog(null,
-								"Du försöker dubbelboka dig! \nDär ligger redan " + matrix[i][0] + " som börjar "
-										+ df.format((Date) matrix[i][1]) + " och slutar "
-										+ df.format((Date) matrix[i][2]));
+						
+						kalenderSystem_showInfoBoard("Du försöker dubbelboka dig! \nDär ligger redan " + matrix[i][0] + " som börjar "
+								+ df.format((Date) matrix[i][1]) + " och slutar "
+								+ df.format((Date) matrix[i][2]));
+						
 						return false;
 
 					} else if (endTime.compareTo((Date) matrix[i][1]) > 0
 							&& endTime.compareTo((Date) matrix[i][2]) <= 0) {
-
-						JOptionPane.showMessageDialog(null,
-								"Du försöker dubbelboka dig! \nDär ligger redan " + matrix[i][0] + " som börjar "
+						
+								kalenderSystem_showInfoBoard("Du försöker dubbelboka dig! \nDär ligger redan " + matrix[i][0] + " som börjar "
 										+ df.format((Date) matrix[i][1]) + " och slutar "
 										+ df.format((Date) matrix[i][2]));
 						return false;
@@ -1702,8 +1784,7 @@ public class kalenderSystem_window extends JFrame
 					} else if (startTime.compareTo((Date) matrix[i][1]) < 0
 							&& endTime.compareTo((Date) matrix[i][2]) > 0) {
 
-						JOptionPane.showMessageDialog(null,
-								"Du försöker dubbelboka dig! \nDär ligger redan " + matrix[i][0] + " som börjar "
+								kalenderSystem_showInfoBoard("Du försöker dubbelboka dig! \nDär ligger redan " + matrix[i][0] + " som börjar "
 										+ df.format((Date) matrix[i][1]) + " och slutar "
 										+ df.format((Date) matrix[i][2]));
 						return false;
@@ -1711,8 +1792,8 @@ public class kalenderSystem_window extends JFrame
 					} else if (startTime.compareTo((Date) matrix[i][1]) == 0
 							&& endTime.compareTo((Date) matrix[i][2]) == 0) {
 
-						JOptionPane.showMessageDialog(null,
-								"Du försöker dubbelboka dig! \nDär ligger redan " + matrix[i][0] + " som börjar "
+						
+								kalenderSystem_showInfoBoard("Du försöker dubbelboka dig! \nDär ligger redan " + matrix[i][0] + " som börjar "
 										+ df.format((Date) matrix[i][1]) + " och slutar "
 										+ df.format((Date) matrix[i][2]));
 						return false;
@@ -1742,20 +1823,21 @@ public class kalenderSystem_window extends JFrame
 	}
 
 	public Object[][] kalenderSystem_getCalendars() {
-
+		
 		String SQL = "SELECT calendarID FROM acceptedcalendars WHERE userID=? AND calendarID != ?";
 		String types = "ii";
 		Object[] params = { userID, 0 };
 
 		Object[][] matrix = kalenderSystem_getData("kalenderSystem_getData.php", SQL, types, params);
 
-		Vector<Integer> eventIDs = new Vector<Integer>();
-
+		Vector<Integer> calendarIDs = new Vector<Integer>();
+		/*
 		for (int i = 0; i < matrix.length; i++) {
 
-			eventIDs.add((int) matrix[i][0]);
+			calendarIDs.add((int) matrix[i][0]);
 
 		}
+		*/
 
 		SQL = "SELECT calendarID FROM calendars WHERE creatorID=? AND calendarID != ?";
 		types = "ii";
@@ -1765,21 +1847,25 @@ public class kalenderSystem_window extends JFrame
 
 		for (int i = 0; i < matrix.length; i++) {
 
-			eventIDs.add((int) matrix[i][0]);
+			calendarIDs.add((int) matrix[i][0]);
 
 		}
+		
+		matrix = new Object[calendarIDs.size()][];
+		
+		for (int i = 0; i < calendarIDs.size(); i++) {
 
-		for (int i = 0; i < eventIDs.size(); i++) {
-
-			int eventID = eventIDs.get(i);
+			int calendarID = calendarIDs.get(i);
 
 			SQL = "SELECT calendarID, name, creatorID FROM calendars WHERE calendarID=?";
 			types = "i";
 			params = new Object[1];
-			params[0] = eventID;
+			params[0] = calendarID;
 
 			Object[][] temp = kalenderSystem_getData("kalenderSystem_getData.php", SQL, types, params);
-			matrix[i] = temp[0];
+			if(temp.length>0) {
+				matrix[i] = temp[0];
+			}
 
 		}
 
@@ -2338,9 +2424,9 @@ public class kalenderSystem_window extends JFrame
 
 					kalenderSystem_sendData("kalenderSystem_sendData.php", SQL, types, params);
 
-					SQL = "INSERT INTO acceptedcalendars(eventID, userID) values(?, ?)";
+					SQL = "INSERT INTO acceptedcalendars(calendarID, userID) values(?, ?)";
 					types = "ii";
-					params = new Object[] { acceptDeclineID, userID };
+					params = new Object[] {acceptDeclineID, userID };
 
 					kalenderSystem_sendData("kalenderSystem_sendData.php", SQL, types, params);
 				}
@@ -2503,7 +2589,7 @@ public class kalenderSystem_window extends JFrame
 
 						} else {
 
-							info.setText("Du är redan bokad då!");
+							//info.setText("Du är redan bokad då!");
 
 						}
 
@@ -2569,10 +2655,6 @@ public class kalenderSystem_window extends JFrame
 
 			case ("infoOk"):
 
-				super.setEnabled(true);
-				addCalendarFrame.setEnabled(true);
-				super.requestFocus();
-				addCalendarFrame.requestFocus();
 				infoBoard.setVisible(false);
 
 				break;
@@ -2873,10 +2955,6 @@ public class kalenderSystem_window extends JFrame
 
 			} else if (name.equals("infoBoard")) {
 
-				super.setEnabled(true);
-				addCalendarFrame.setEnabled(true);
-				super.requestFocus();
-				addCalendarFrame.requestFocus();
 				infoBoard.setVisible(false);
 
 			}
