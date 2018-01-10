@@ -21,7 +21,6 @@ import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
 import java.text.DateFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -42,8 +41,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.JViewport;
 import javax.swing.SwingConstants;
-import javax.swing.border.Border;
-import javax.swing.plaf.basic.BasicBorders.ButtonBorder;
 
 import org.jdesktop.swingx.JXDatePicker;
 import org.json.JSONArray;
