@@ -54,6 +54,7 @@ public class kalenderSystem_window extends JFrame
 
 	private JFrame addActivityFrame;
 	private JFrame showActivityFrame;
+	private JFrame showCalendarInviteFrame;
 	private JFrame addCalendarFrame;
 	private JFrame inviteUserFrame;
 	private JFrame infoBoard;
@@ -88,6 +89,10 @@ public class kalenderSystem_window extends JFrame
 	private JLabel activityCalendar;
 	private JLabel activityStart;
 	private JLabel activityEnd;
+	
+	private JLabel calendarName;
+	private JLabel calendarCreator;
+	private JLabel calendarEventQuantity;
 
 	private GridBagConstraints c = new GridBagConstraints();
 	private int x = 0;
@@ -803,7 +808,71 @@ public class kalenderSystem_window extends JFrame
 		panel.add(activityStart);
 		panel.add(activityEnd);
 		pack();
+	}
+	
+	public void kalenderSystem_showCalendarInvitePane() {
+		
+		kalenderSystem_loggedInMenuPane();
 
+		if (safOpen) {
+			showActivityFrame.setVisible(false);
+		}
+		showActivityFrame = new JFrame();
+		Point p = super.getLocation();
+		p.setLocation((int) p.getX() + 50, (int) p.getY() + 50);
+		showCalendarInviteFrame.setLocation(p);
+		showCalendarInviteFrame.setPreferredSize(new Dimension(500, 500));
+		showCalendarInviteFrame.setTitle("Visa aktivitet");
+		showCalendarInviteFrame.setLayout(new BorderLayout());
+
+		JPanel panel = new JPanel();
+		panel.setLayout(new GridLayout(16, 1));
+
+		JPanel fPane = new JPanel();
+		fPane.setPreferredSize(new Dimension(80, 20));
+		JPanel fPane2 = new JPanel();
+		fPane2.setPreferredSize(new Dimension(80, 20));
+		panel.setPreferredSize(new Dimension(300, 400));
+
+		showCalendarInviteFrame.add(panel, BorderLayout.CENTER);
+		showCalendarInviteFrame.add(fPane, BorderLayout.WEST);
+		showCalendarInviteFrame.add(fPane2, BorderLayout.EAST);
+		showCalendarInviteFrame.pack();
+		showCalendarInviteFrame.setVisible(true);
+		safOpen = true;
+
+		calendarName = new JLabel();
+		calendarCreator = new JLabel();
+		calendarEventQuantity = new JLabel();
+		
+		String SQL = "SELECT *FROM calendar WHERE calendarID=?";
+		String types = "i";
+		Object[]params = {1};
+		Object[][] matrix = kalenderSystem_getData("kalenderSystem_getData.php", SQL,  types, params);
+		
+		String SQLUsers = "SELECT *FROM users WHERE userID=?";
+		String typesUsers = "i";
+		Object[]paramsUsers = {1};
+		Object[][] matrixUsers = kalenderSystem_getData("kalenderSystem_getData.php", SQLUsers, typesUsers, paramsUsers);
+		
+		String SQLEvents = "SELECT *FROM events WHERE calendarID=?";
+		String typesEvents = "i";
+		Object[]paramsEvents = {matrix[0][2]};
+		Object[][] matrixEvents = kalenderSystem_getData("kalenderSystem_getData.php", SQLEvents, typesEvents, paramsEvents);
+		
+		calendarName.setText("Eventnamn: "+(String)matrix[0][1]);
+		calendarName.setFont(newFont);
+		
+		calendarCreator.setText("Skapare: "+(String)matrixUsers[0][4] + " " + (String)matrixUsers[0][4]);
+		calendarCreator.setFont(newFont);
+		
+		calendarEventQuantity.setText("Eventantal: "+matrixEvents.length);
+		calendarEventQuantity.setFont(newFont);
+		
+		panel.add(calendarName);
+		panel.add(calendarCreator);
+		panel.add(calendarEventQuantity);
+		pack();
 	}
 
 	public void kalenderSystem_addCalendarFrame() {
