@@ -742,7 +742,7 @@ public class kalenderSystem_window extends JFrame
 		p.setLocation((int) p.getX() + 50, (int) p.getY() + 50);
 		showActivityFrame.setLocation(p);
 		showActivityFrame.setPreferredSize(new Dimension(500, 500));
-		showActivityFrame.setTitle("Skapa ny aktivitet");
+		showActivityFrame.setTitle("Visa aktivitet");
 		showActivityFrame.setLayout(new BorderLayout());
 
 		JPanel panel = new JPanel();
@@ -766,8 +766,43 @@ public class kalenderSystem_window extends JFrame
 		activityCalendar = new JLabel();
 		activityStart = new JLabel();
 		activityEnd = new JLabel();
-
-		// Object[][] eventAttributes = kalenderSystem_getActivities();
+		
+		String SQL = "SELECT *FROM events WHERE eventID=?";
+		String types = "i";
+		Object[]params = {1};
+		Object[][] matrix = kalenderSystem_getData("kalenderSystem_getData.php", SQL,  types, params);
+		
+		String SQLUsers = "SELECT *FROM users WHERE userID=?";
+		String typesUsers = "i";
+		Object[]paramsUsers = {matrix[0][1]};
+		Object[][] matrixUsers = kalenderSystem_getData("kalenderSystem_getData.php", SQLUsers, typesUsers, paramsUsers);
+		
+		String SQLCalendars = "SELECT *FROM calendars WHERE calendarID=?";
+		String typesCalendars = "i";
+		Object[]paramsCalendars = {matrix[0][2]};
+		Object[][] matrixCalendars = kalenderSystem_getData("kalenderSystem_getData.php", SQLCalendars, typesCalendars, paramsCalendars);
+		
+		activityName.setText("Eventnamn: "+(String)matrix[0][3]);
+		activityName.setFont(newFont);
+		
+		activityCreator.setText("Skapare: "+(String)matrixUsers[0][4] + " " + matrixUsers[0][5]);
+		activityCreator.setFont(newFont);
+		
+		activityCalendar.setText("Kalender: "+(String)matrixCalendars[0][1]);
+		activityCalendar.setFont(newFont);
+		
+		activityStart.setText("Starttid: "+(String)matrix[0][4]);
+		activityStart.setFont(newFont);
+		
+		activityEnd.setText("Sluttid: "+(String)matrix[0][5]);
+		activityEnd.setFont(newFont);
+		
+		panel.add(activityName);
+		panel.add(activityCreator);
+		panel.add(activityCalendar);
+		panel.add(activityStart);
+		panel.add(activityEnd);
+		pack();
 
 	}
 
@@ -1056,6 +1091,7 @@ public class kalenderSystem_window extends JFrame
 		containerFiller2.setPreferredSize(new Dimension(0, 0));
 
 		JPanel cPanel = new JPanel();
+
 		cPanel.setLayout(new BorderLayout());
 
 		JPanel dayNamePanel = new JPanel();
@@ -1588,7 +1624,7 @@ public class kalenderSystem_window extends JFrame
 	 * endDate object[][4] creatorID
 	 */
 	public Object[][] kalenderSystem_getActivities(Calendar cal) {
-		
+  
 		String SQL = "SELECT calendarID FROM acceptedcalendars WHERE userID=?";
 		String types = "i";
 		Object[] params = { userID };
@@ -1661,6 +1697,7 @@ public class kalenderSystem_window extends JFrame
 			SQL = "SELECT eventID, name, startTime, endTime, creatorID FROM events WHERE eventID=? AND startTime >= ? AND endTime <= ?";
 			types = "iss";
 			params = new Object[3];
+
 			params[0] = eventID;
 			params[1] = str_startDate;
 			params[2] = str_endDate;
