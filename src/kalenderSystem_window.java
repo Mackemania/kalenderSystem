@@ -689,7 +689,7 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 		p.setLocation((int) p.getX()+50, (int)p.getY()+50);
 		showActivityFrame.setLocation(p);
 		showActivityFrame.setPreferredSize(new Dimension(500, 500));
-		showActivityFrame.setTitle("Skapa ny aktivitet");
+		showActivityFrame.setTitle("Visa aktivitet");
 		showActivityFrame.setLayout(new BorderLayout());
 		
 		JPanel panel = new JPanel();
@@ -714,9 +714,42 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 		activityStart = new JLabel();
 		activityEnd = new JLabel();
 		
-		matris[]eventAttributes = kalenderSystem_getActivities();
+		String SQL = "SELECT *FROM events WHERE eventID=?";
+		String types = "i";
+		Object[]params = {1};
+		Object[][] matrix = kalenderSystem_getData("kalenderSystem_getData.php", SQL,  types, params);
 		
+		String SQLUsers = "SELECT *FROM users WHERE userID=?";
+		String typesUsers = "i";
+		Object[]paramsUsers = {matrix[0][1]};
+		Object[][] matrixUsers = kalenderSystem_getData("kalenderSystem_getData.php", SQLUsers, typesUsers, paramsUsers);
 		
+		String SQLCalendars = "SELECT *FROM calendars WHERE calendarID=?";
+		String typesCalendars = "i";
+		Object[]paramsCalendars = {matrix[0][2]};
+		Object[][] matrixCalendars = kalenderSystem_getData("kalenderSystem_getData.php", SQLCalendars, typesCalendars, paramsCalendars);
+		
+		activityName.setText("Eventnamn: "+(String)matrix[0][3]);
+		activityName.setFont(newFont);
+		
+		activityCreator.setText("Skapare: "+(String)matrixUsers[0][4] + " " + matrixUsers[0][5]);
+		activityCreator.setFont(newFont);
+		
+		activityCalendar.setText("Kalender: "+(String)matrixCalendars[0][1]);
+		activityCalendar.setFont(newFont);
+		
+		activityStart.setText("Starttid: "+(String)matrix[0][4]);
+		activityStart.setFont(newFont);
+		
+		activityEnd.setText("Sluttid: "+(String)matrix[0][5]);
+		activityEnd.setFont(newFont);
+		
+		panel.add(activityName);
+		panel.add(activityCreator);
+		panel.add(activityCalendar);
+		panel.add(activityStart);
+		panel.add(activityEnd);
+		pack();
 	}
 	
 	public void kalenderSystem_addCalendarFrame() {
@@ -996,16 +1029,16 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 		JPanel cPanel = new JPanel();
 		cPanel.setLayout(new GridLayout(2, 7));
 		
-		Object[][] matrix = kalenderSystem_getActivities();
+		//Object[][] matrix = kalenderSystem_getActivities();
 		
 		cal = (GregorianCalendar) Calendar.getInstance();
 		cal.set(Calendar.WEEK_OF_YEAR, int_week);
 		cal.get(Calendar.DAY_OF_WEEK);
 		
-		for(int i = 0; i<matrix.length; i++) {
+		/*for(int i = 0; i<matrix.length; i++) {
 			
 			
-		}
+		}*/
 		
 		
 		
@@ -1065,7 +1098,7 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 	 * 		Object[][3] endDate
 	 * 		object[][4] creatorID
 	 */
-	public Object[][] kalenderSystem_getActivities() {
+	public Object[][] kalenderSystem_getActivities(Calendar cal) {
 
 
 		String SQL = "SELECT eventID FROM acceptedevents WHERE userID=?";
@@ -1093,11 +1126,28 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 			
 		}
 		
+		cal.set(Calendar.HOUR_OF_DAY, 0);
+		cal.set(Calendar.SECOND, 0);
+		cal.set(Calendar.MINUTE, 0);
+		cal.set(Calendar.MILLISECOND, 0);
+		
+		Date startDate = cal.getTime();
+		
+		cal.set(Calendar.HOUR_OF_DAY, 23);
+		cal.set(Calendar.SECOND, 59);
+		cal.set(Calendar.MINUTE, 59);
+		cal.set(Calendar.MILLISECOND, 999);
+		
+		Date endDate = cal.getTime();
+		
+		String str_startDate = df.format(startDate);
+		String str_endDate = df.format(endDate);
+		
 		for(int i = 0; i<eventIDs.size(); i++) {
 			
 			int eventID = eventIDs.get(i);
 			
-			SQL = "SELECT eventID, name, startTime, endTime, creatorID FROM events WHERE eventID=?";
+			SQL = "SELECT eventID, name, startTime, endTime, creatorID FROM events WHERE eventID=? AND startTime>="+str_startDate+" AND endTime<="+str_endDate;
 			types = "i";
 			params = new Object[1];
 			params[0] = eventID;
@@ -1971,7 +2021,7 @@ public class kalenderSystem_window extends JFrame implements ComponentListener, 
 						
 					case("showActivitiesOfDay"):
 						String name = button.getName();
-						Object[][] matrix = kalenderSystem_getActivities();
+						//Object[][] matrix = kalenderSystem_getActivities();
 						
 						System.out.println(name);
 						break;
