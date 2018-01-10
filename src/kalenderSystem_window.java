@@ -82,6 +82,7 @@ public class kalenderSystem_window extends JFrame
 	private boolean safOpen = false;
 	private boolean acfOpen = false;
 	private boolean iufOpen = false;
+	private boolean scfOpen = false;
 	private Font newFont = new Font("Arial", 0, 18);
 
 	private JLabel activityName;
@@ -570,9 +571,10 @@ public class kalenderSystem_window extends JFrame
 			JPanel activityPanel = new JPanel();
 			activityPanel.setLayout(new GridLayout(1, 5));
 
-			JButton event = new JButton((String) matrix[i][2]);
+			JButton event = new JButton("<html><p>"+(String) matrix[i][2]+"</p></html>");
 			event.addActionListener(this);
-			event.setActionCommand("checkCalendar" + matrix[i][0]);
+			event.setActionCommand("checkCalendar");
+			event.setName("" + matrix[i][0]);
 			activityPanel.add(event);
 
 			activityPanel.add(new JLabel(""));
@@ -835,14 +837,14 @@ public class kalenderSystem_window extends JFrame
 		pack();
 	}
 	
-	public void kalenderSystem_showCalendarInvitePane() {
+	public void kalenderSystem_showCalendarInvitePane(int calendarID) {
 		
 		kalenderSystem_loggedInMenuPane();
 
-		if (safOpen) {
-			showActivityFrame.setVisible(false);
+		if (scfOpen) {
+			showCalendarInviteFrame.setVisible(false);
 		}
-		showActivityFrame = new JFrame();
+		showCalendarInviteFrame = new JFrame();
 		Point p = super.getLocation();
 		p.setLocation((int) p.getX() + 50, (int) p.getY() + 50);
 		showCalendarInviteFrame.setLocation(p);
@@ -864,20 +866,20 @@ public class kalenderSystem_window extends JFrame
 		showCalendarInviteFrame.add(fPane2, BorderLayout.EAST);
 		showCalendarInviteFrame.pack();
 		showCalendarInviteFrame.setVisible(true);
-		safOpen = true;
+		scfOpen = true;
 
 		calendarName = new JLabel();
 		calendarCreator = new JLabel();
 		calendarEventQuantity = new JLabel();
 		
-		String SQL = "SELECT *FROM calendar WHERE calendarID=?";
+		String SQL = "SELECT *FROM calendars WHERE calendarID=?";
 		String types = "i";
-		Object[]params = {1};
+		Object[]params = {calendarID};
 		Object[][] matrix = kalenderSystem_getData("kalenderSystem_getData.php", SQL,  types, params);
 		
 		String SQLUsers = "SELECT *FROM users WHERE userID=?";
 		String typesUsers = "i";
-		Object[]paramsUsers = {1};
+		Object[]paramsUsers = {matrix[0][2]};
 		Object[][] matrixUsers = kalenderSystem_getData("kalenderSystem_getData.php", SQLUsers, typesUsers, paramsUsers);
 		
 		String SQLEvents = "SELECT *FROM events WHERE calendarID=?";
@@ -888,7 +890,7 @@ public class kalenderSystem_window extends JFrame
 		calendarName.setText("Eventnamn: "+(String)matrix[0][1]);
 		calendarName.setFont(newFont);
 		
-		calendarCreator.setText("Skapare: "+(String)matrixUsers[0][4] + " " + (String)matrixUsers[0][4]);
+		calendarCreator.setText("Skapare: "+(String)matrixUsers[0][4] + " " + (String)matrixUsers[0][5]);
 		calendarCreator.setFont(newFont);
 		
 		calendarEventQuantity.setText("Eventantal: "+matrixEvents.length);
@@ -1360,9 +1362,9 @@ public class kalenderSystem_window extends JFrame
 
 		}
 
-		String SQL = "SELECT userID, username, firstName, lastName FROM users WHERE userID != ? ORDER BY username ASC";
-		String types = "i";
-		Object[] params = { 0 };
+		String SQL = "SELECT userID, username, firstName, lastName FROM users WHERE userID != ? and userID != ?  ORDER BY username ASC";
+		String types = "ii";
+		Object[] params = { 0, userID };
 
 		Object[][] matrix = kalenderSystem_getData("kalendersystem_getData.php", SQL, types, params);
 
@@ -1657,29 +1659,39 @@ public class kalenderSystem_window extends JFrame
 			}
 
 		}
-
+		
 		searchPhrase = "%" + searchPhrase + "%";
+		searchPhrase.replaceAll("%", "");
+		
 		Vector<Integer> userIDs = new Vector<Integer>();
 
 		String SQL = "SELECT userID FROM users WHERE username LIKE ? OR firstName LIKE ? OR lastName LIKE ? ORDER BY username ASC";
+		//System.out.println(SQL);
 		String types = "sss";
-		Object[] params = { searchPhrase, searchPhrase, searchPhrase };
+		Object[] params = { searchPhrase, searchPhrase, searchPhrase};
+		
 
 		Object[][] matrix = kalenderSystem_getData("kalenderSystem_getData.php", SQL, types, params);
+		
 
 		for (int i = 0; i < matrix.length; i++) {
 
 			userIDs.add((int) matrix[i][0]);
 
 		}
+		
+		
+		
+		userIDs.removeElement(userID);
+		
 
 		matrix = new Object[userIDs.size()][];
 		for (int i = 0; i < userIDs.size(); i++) {
-
+			
 			SQL = "SELECT userID, username, firstName, lastName FROM users WHERE userID = ?";
 			types = "i";
-			params = new Object[1];
-			params[0] = userIDs.get(i);
+			params = new Object[] {userIDs.get(i)};
+			
 
 			Object[][] temp = kalenderSystem_getData("kalenderSystem_getData.php", SQL, types, params);
 			matrix[i] = temp[0];
@@ -1721,9 +1733,11 @@ public class kalenderSystem_window extends JFrame
 				userPanel.add(coice);
 			}
 		}
+		
 
 		inviteUserFrame.pack();
 		inviteUserFrame.repaint();
+		
 
 	}
 
@@ -2397,12 +2411,16 @@ public class kalenderSystem_window extends JFrame
 
 		query = query + "&userID=" + userID + "&hashkey=" + hashkey;
 		str_url = str_url + query;
+		str_url = str_url.replaceAll("%", "%25");
 		str_url = str_url.replace(" ", "%20");
+		
+		
 
 		try {
 			// Connectar till servern
 			// System.out.println(str_url);
 			URL url = new URL(str_url);
+			//System.out.println(str_url);
 			URLConnection conn = url.openConnection();
 			InputStream is = conn.getInputStream();
 
@@ -2835,6 +2853,15 @@ public class kalenderSystem_window extends JFrame
 					kalenderSystem_showActivityPane(activityID);
 				
 				break;
+				
+			case("checkCalendar"):
+				
+			String str_calendarID = button.getName();
+			int calendarID = Integer.parseInt(str_calendarID);
+				
+			kalenderSystem_showCalendarInvitePane(calendarID);
+			
+				break;
 
 			case ("inviteUsers"): 
 				
@@ -2906,7 +2933,7 @@ public class kalenderSystem_window extends JFrame
 					panel = (JPanel) p.getComponent(0);
 
 					JComboBox box = (JComboBox)panel.getComponent(1);
-					int calendarID = calendarIDs.get(box.getSelectedIndex());
+					calendarID = calendarIDs.get(box.getSelectedIndex());
 					
 					kalenderSystem_inviteUser(userIDs, "calendar", calendarID);
 					
@@ -2964,7 +2991,6 @@ public class kalenderSystem_window extends JFrame
 	public void keyPressed(KeyEvent arg) {
 
 	}
-	
 
 	public void keyReleased(KeyEvent arg) {
 
@@ -3065,13 +3091,16 @@ public class kalenderSystem_window extends JFrame
 
 			JTextField field = ((JTextField) arg.getSource());
 			String searchPhrase = field.getText();
-
+			
+			//System.out.println(searchPhrase);
+			//System.out.println(searchPhrase.length());
+			
 			if (searchPhrase.length() > 0) {
 				JPanel p = (JPanel) field.getParent().getParent();
 				JScrollPane pane = (JScrollPane) p.getComponent(1);
 				JPanel panel = (JPanel) ((JViewport) pane.getComponent(0)).getComponent(0);
 				kalenderSystem_searchUser(searchPhrase, panel);
-
+				//System.out.println("After searchfuntion");
 			} else {
 
 				JPanel p = (JPanel) field.getParent().getParent();
@@ -3098,9 +3127,9 @@ public class kalenderSystem_window extends JFrame
 
 				}
 
-				String SQL = "SELECT userID, username, firstName, lastName FROM users WHERE userID != ? ORDER BY username ASC";
-				String types = "i";
-				Object[] params = { 0 };
+				String SQL = "SELECT userID, username, firstName, lastName FROM users WHERE userID != ? and userID != ? ORDER BY username ASC";
+				String types = "ii";
+				Object[] params = { 0, userID };
 
 				Object[][] matrix = kalenderSystem_getData("kalendersystem_getData.php", SQL, types, params);
 
@@ -3122,20 +3151,16 @@ public class kalenderSystem_window extends JFrame
 		}
 
 	}
-	
 
 	public void keyTyped(KeyEvent arg) {
 
 	}
 	
 	
-
-	
 	public void windowActivated(WindowEvent arg0) {
 
 	}
 
-	
 	public void windowClosed(WindowEvent arg0) {
 		String name = ((JFrame) arg0.getSource()).getName();
 		// System.out.println(name);
@@ -3156,26 +3181,21 @@ public class kalenderSystem_window extends JFrame
 
 	}
 
-	
 	public void windowClosing(WindowEvent arg0) {
 
 	}
 
-	
 	public void windowDeactivated(WindowEvent arg0) {
 
 	}
 
-	
 	public void windowDeiconified(WindowEvent arg0) {
 
 	}
 
-	
 	public void windowIconified(WindowEvent arg0) {
 
 	}
-
 	
 	public void windowOpened(WindowEvent arg0) {
 
