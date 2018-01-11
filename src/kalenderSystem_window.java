@@ -87,6 +87,7 @@ public class kalenderSystem_window extends JFrame
 	private JLabel activityCalendar;
 	private JLabel activityStart;
 	private JLabel activityEnd;
+	private JButton removeActivity;
 	
 	private JLabel calendarName;
 	private JLabel calendarCreator;
@@ -775,6 +776,7 @@ public class kalenderSystem_window extends JFrame
 		activityCalendar = new JLabel();
 		activityStart = new JLabel();
 		activityEnd = new JLabel();
+		removeActivity = new JButton("Ta bort aktivitet");
 		
 		String SQL = "SELECT *FROM events WHERE eventID=?";
 		String types = "i";
@@ -806,6 +808,10 @@ public class kalenderSystem_window extends JFrame
 		activityEnd.setText("Sluttid: "+(String)matrix[0][5]);
 		activityEnd.setFont(newFont);
 		
+		removeActivity.setBackground(new Color(255, 175, 175));
+		removeActivity.addActionListener(this);
+		removeActivity.setName(""+matrix[0][0]);
+		removeActivity.setActionCommand("removeActivity");
 		
 		panel.add(new JLabel(""));
 		panel.add(activityName);
@@ -831,6 +837,10 @@ public class kalenderSystem_window extends JFrame
 			panel.add(new JLabel(""));
 			panel.add(button);
 		}
+		
+		panel.add(new JLabel(""));
+		panel.add(removeActivity);
+		
 		pack();
 	}
 	
@@ -1742,7 +1752,7 @@ public class kalenderSystem_window extends JFrame
 
 	public boolean kalenderSystem_deleteActivity(int eventID) {
 
-		String SQL = "UPDATE event SET calendarID = ? WHERE eventID=?";
+		String SQL = "UPDATE events SET calendarID = ? WHERE eventID=?";
 		String types = "ii";
 		Object[] params = { 0, eventID };
 
@@ -1829,13 +1839,14 @@ public class kalenderSystem_window extends JFrame
 			int eventID = eventIDs.get(i);
 			// System.out.println(str_startDate);
 			// System.out.println(str_endDate);
-			SQL = "SELECT eventID, name, startTime, endTime, creatorID FROM events WHERE eventID=? AND startTime >= ? AND endTime <= ?";
-			types = "iss";
-			params = new Object[3];
+			SQL = "SELECT eventID, name, startTime, endTime, creatorID FROM events WHERE eventID=? AND startTime >= ? AND endTime <= ? AND calendarID != ?";
+			types = "issi";
+			params = new Object[4];
 
 			params[0] = eventID;
 			params[1] = str_startDate;
 			params[2] = str_endDate;
+			params[3] = 0;
 
 			temp = kalenderSystem_getData("kalenderSystem_getData.php", SQL, types, params);
 
@@ -2691,6 +2702,16 @@ public class kalenderSystem_window extends JFrame
 
 				kalenderSystem_showInvitesPane();
 				break;
+				
+			case ("removeActivity"):
+				
+				int eventIDremove = Integer.parseInt(removeActivity.getName());
+				kalenderSystem_deleteActivity(eventIDremove);
+				kalenderSystem_showDayView(Calendar.getInstance().get(Calendar.YEAR), Calendar.getInstance().get(Calendar.WEEK_OF_YEAR));
+				showActivityFrame.setVisible(false);
+				safOpen = false;
+				
+				break;
 
 			case ("Skapa aktivitet"):
 
@@ -2980,7 +3001,7 @@ public class kalenderSystem_window extends JFrame
 			break;
 
 		default:
-			System.out.println(arg);
+			//System.out.println(arg);
 			break;
 		}
 	}
