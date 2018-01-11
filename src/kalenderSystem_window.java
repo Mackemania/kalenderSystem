@@ -1507,7 +1507,7 @@ public class kalenderSystem_window extends JFrame
 		y++;
 
 		String[] menuNames = {"Månadsvy", "Veckovy", "Skapa Aktivitet", "Skapa Kalender", "Inbjudningar",
-				"Inställningar", "Logga ut" };
+				"Bjud In", "Logga ut" };
 		JButton[] buttons = new JButton[menuNames.length];
 
 		for (int i = 0; i < buttons.length; i++) {
@@ -2835,7 +2835,7 @@ public class kalenderSystem_window extends JFrame
 						Calendar.getInstance().get(Calendar.MONTH));
 				break;
 
-			case ("menuInställningar"):
+			case ("menuBjud In"):
 
 				kalenderSystem_inviteUserFrame(0, "calendar");
 				break;
