@@ -1200,20 +1200,21 @@ public class kalenderSystem_window extends JFrame
 		cal.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
 
 		JButton[][] activities = new JButton[7][];
-
+		
 		for (int i = 0; i < 7; i++) {
 
 			Object[][] matrix = kalenderSystem_getActivities(cal);
 			activities[i] = new JButton[matrix.length];
-
+			
 			for (int j = 0; j < matrix.length; j++) {
 				for (int k = 0; k < matrix.length - (j + 1); k++) {
 					try {
-						if (df.parse((String) matrix[j + 1][2]).compareTo(df.parse((String) matrix[j][2])) < 0) {
-
-							Object[] temp = matrix[j];
-							matrix[j] = matrix[j + 1];
-							matrix[j + 1] = temp;
+						
+						if (df.parse((String) matrix[k + 1][2]).compareTo(df.parse((String) matrix[k][2])) < 0) {
+							
+							Object[] temp = matrix[k];
+							matrix[k] = matrix[k + 1];
+							matrix[k + 1] = temp;
 
 						}
 					} catch (Exception e) {
