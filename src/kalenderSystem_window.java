@@ -3130,7 +3130,7 @@ public class kalenderSystem_window extends JFrame
 				Object[] params = { 0, userID };
 
 				Object[][] matrix = kalenderSystem_getData("kalendersystem_getData.php", SQL, types, params);
-
+				panel.setLayout(new GridLayout(matrix.length, 1));
 				for (int i = 0; i < matrix.length; i++) {
 					if (names.indexOf(matrix[i][1]) < 0) {
 
