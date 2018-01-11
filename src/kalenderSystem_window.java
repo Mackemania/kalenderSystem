@@ -657,7 +657,7 @@ public class kalenderSystem_window extends JFrame
 		((JButton) com[1]).setIcon(null);
 		((JButton) com[1]).setText("Välj ett datum");
 
-		String[] labelText = { " ", "", "Aktivitetstitel", "Välj startdatum", "Klockan:", "Välj slutdatum", "Klockan:",
+		String[] labelText = { " ", "", "Aktivitetstitel", "Välj startdatum", "Klockan:", "Välj sluttid", "Klockan:",
 				"" };
 		JLabel[] labels = new JLabel[labelText.length];
 		kalenderSystem_spinner spinner = new kalenderSystem_spinner(0, 24, 12, 1, newFont, JTextField.RIGHT);
@@ -699,9 +699,9 @@ public class kalenderSystem_window extends JFrame
 
 				panel.add(p1);
 
-			} else if (labelText[i].equals("Välj slutdatum")) {
+			} else if (labelText[i].equals("Välj sluttid")) {
 
-				panel.add(p2);
+				//panel.add(p2);
 
 			} else if (labelText[i].equals("Klockan:")) {
 
@@ -2734,7 +2734,7 @@ public class kalenderSystem_window extends JFrame
 				cal.set(Calendar.MINUTE, time.get(1));
 				Date startDate = cal.getTime();
 
-				cal.setTime(dates.get(1));
+				cal.setTime(dates.get(0));
 				cal.set(Calendar.HOUR_OF_DAY, time.get(2));
 				cal.set(Calendar.MINUTE, time.get(3));
 				Date endDate = cal.getTime();
